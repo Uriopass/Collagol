@@ -9,6 +9,8 @@ window.addEventListener("load", function(evt) {
         ws = null;
     };
     ws.onmessage = function(evt) {
+        if(!initOk)
+            return;
         receive(JSON.parse(evt.data));
     };
     ws.onerror = function(evt) {
@@ -18,21 +20,32 @@ window.addEventListener("load", function(evt) {
 
 const userAction = async () => {
     const response = await fetch('config');
-    const myJson = await response.json(); //extract JSON from the http response
-    // do something with myJson
+    return await response.json();
+};
+
+userAction().then(data => init(data))
+
+
+let height = -1;
+let width = -1;
+let grid;
+let initOk = false;
+
+function init(config) {
+    height = config.height;
+    width = config.width;
+
+    grid = new Array(height);
+    for (let i = 0; i < height; i++) {
+        grid[i] = new Array(width);
+    }
+    initOk = true;
 }
 
-let rows = 100;
-let cols = 100;
-
-let grid = new Array(rows);
-for (let i = 0; i < rows; i++) {
-    grid[i] = new Array(cols);
-}
 
 function receive(obj) {
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
             let val = obj[i][j];
             if (grid[i][j] !== 2) {
                 grid[i][j] = val;
@@ -44,8 +57,8 @@ function receive(obj) {
 }
 
 function resetGrids() {
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
                 grid[i][j] = 0;
             }
@@ -55,8 +68,8 @@ function resetGrids() {
 
 // clear the grid
 function sendHandler() {
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
                 ws.send(JSON.stringify({
                     x: j,
@@ -101,7 +114,7 @@ function onCanvasOver(e) {
 }
 
 function redrawCell(x, y, color) {
-    if (x < 0 || y < 0 || x >= cols || y >= rows) {
+    if (x < 0 || y < 0 || x >= width || y >= height) {
         return
     }
     context.beginPath();
