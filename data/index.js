@@ -9,15 +9,15 @@ window.addEventListener("load", function(evt) {
         ws = null;
     };
     ws.onmessage = function(evt) {
-        console.log("RESPONSE: " + evt.data);
-        receive(evt.data);
+        receive(JSON.parse(evt.data));
     };
     ws.onerror = function(evt) {
         console.log("ERROR: " + evt.data);
     };
 });
-let rows = 30;
-let cols = 50;
+
+let rows = 100;
+let cols = 100;
 
 let grid = new Array(rows);
 
@@ -28,20 +28,20 @@ function initializeGrids() {
 }
 
 function receive(obj) {
-    obj.forEach(function (elem) {
-        let x = elem["x"];
-        let y = elem["y"];
-        let val = elem["value"];
-        if(grid[y][x] !== 2) {
-            grid[y][x] = val;
-            let cell = document.getElementById(i + "_" + j);
-            if(val === 0) {
-                cell.setAttribute("class", "dead");
-            } else if(val === 1) {
-                cell.setAttribute("class", "alive");
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            let val = obj[i][j];
+            if(grid[i][j] !== 2) {
+                grid[i][j] = val;
+                let cell = document.getElementById(i + "_" + j);
+                if(val === 0) {
+                    cell.setAttribute("class", "dead");
+                } else if(val === 1) {
+                    cell.setAttribute("class", "live");
+                }
             }
         }
-    });
+    }
 }
 
 function resetGrids() {
@@ -78,6 +78,7 @@ function createTable() {
             let cell = document.createElement("td");
             cell.setAttribute("id", i + "_" + j);
             cell.setAttribute("class", "dead");
+            cell.onmouseover = cellClickHandler;
             cell.onclick = cellClickHandler;
             tr.appendChild(cell);
         }
@@ -86,11 +87,19 @@ function createTable() {
     gridContainer.appendChild(table);
 }
 
-function cellClickHandler() {
+function cellClickHandler(e) {
+    if(!(e.buttons === 1 || e.buttons === 3 || e.type === "click")) {
+        return
+    }
     let rowcol = this.id.split("_");
     let row = rowcol[0];
     let col = rowcol[1];
 
+    if(grid[row][col] === 2) {
+        grid[row][col] = 1;
+        this.setAttribute("class", "dead");
+        return
+    }
     this.setAttribute("class", "activate");
     grid[row][col] = 2;
 }

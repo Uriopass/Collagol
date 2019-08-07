@@ -5,17 +5,20 @@ body {
 
 #gridContainer {
     padding-bottom: 10px;
+    float: left;
 }
 
 table {
     background-color: #ffffff;
     border-spacing: 0;
+    table-layout: fixed;
 }
 
 td {
-    border: 1px solid #bcbcbc;
-    width: 10px;
-    height: 10px;
+    width: 5px;
+    height: 5px;
+    min-width: 5px;
+    max-width: 5px;
 }
 
 span {
@@ -32,4 +35,44 @@ td.live {
 
 td.activate {
     background-color: #3d852a;
+}
+
+#game {
+    width: 75%;
+    margin:auto;
+}
+
+#controls {
+    width: 250px;
+    display: flow-root;
+    padding: 10px;
+}
+
+.minimal {
+    background: white;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 0 1px 1px #f6f6f6;
+    box-shadow: inset 0 0 1px 1px #f6f6f6;
+    color: #333;
+    font: bold 18px/1 "helvetica neue", helvetica, arial, sans-serif;
+    padding: 8px 0 9px;
+    text-align: center;
+    text-shadow: 0 1px 0 #fff;
+    width: 250px;
+    position: relative;
+    margin: 2px;
+}
+.minimal:hover {
+    background: #e9e9e9;
+    -webkit-box-shadow: inset 0 0 1px 1px #eaeaea;
+    box-shadow: inset 0 0 1px 1px #eaeaea;
+    color: #222;
+    cursor: pointer;
+}
+.minimal:active {
+    background: #d0d0d0;
+    -webkit-box-shadow: inset 0 0 1px 1px #e3e3e3;
+    box-shadow: inset 0 0 1px 1px #e3e3e3;
+    color: #000;
 }

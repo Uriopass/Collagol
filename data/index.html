@@ -7,8 +7,12 @@
         <title>Collagol - Collaborative Game of Life</title>
     </head>
     <body>
-        <div id="gridContainer"></div>
-        <button onclick="sendHandler()">Send pattern</button>
-        <button onclick="clearButtonHandler()">Clear everything</button>
+        <div id="game">
+            <div id="gridContainer" ondragstart="return false;"></div>
+            <div id="controls">
+                <button class="minimal" onclick="sendHandler()">Send pattern</button>
+                <button class="minimal" onclick="clearButtonHandler()">Clear pattern</button>
+            </div>
+        </div>
     </body>
 </html>
