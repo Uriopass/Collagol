@@ -16,12 +16,14 @@
                 </div>
                 <button class="minimal" onclick="sendHandler()">Send pattern</button>
                 <button class="minimal" onclick="clearButtonHandler()">Clear pattern</button>
-                <div style="width: 250px; text-align: center"><h2>Predefined patterns</h2></div>
+                <div style="width: 250px; text-align: center"><h2>Brush</h2></div>
+                <button class="minimal" onclick="selectPattern(-1)">Pen</button>
+                <button class="minimal" onclick="selectPattern(0)">Glider</button>
             </div>
         </div>
 
-        <canvas id="patternDrawer" width="800" height="800"></canvas>
-
+        <canvas id="patternDrawer" width="0" height="0"></canvas>
         <script src="index.js?random=123213"></script>
     </body>
+
 </html>

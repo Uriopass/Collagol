@@ -37,7 +37,12 @@ let grid;
 let initOk = false;
 let cellSize = -1;
 let lastGrid;
-let patternGrid;
+
+patterns = [
+[[1, 1, 1],
+ [1, 0, 0],
+ [0, 1, 0]]];
+
 
 function init(config) {
     height = config.height;
@@ -46,21 +51,13 @@ function init(config) {
 
     console.log(config);
 
-    patternGrid = new Array(100);
-    for (let i = 0; i < 100; i++) {
-        patternGrid[i] = new Array(100);
-        for (let j = 0; j < 100; j++) {
-            patternGrid[i][j] = Math.random() > 0.5 ? 1 : 0;
-        }
-    }
-    drawPattern()
-
     grid = new Array(height);
     lastGrid = new Array(height);
     for (let i = 0; i < height; i++) {
         grid[i] = new Array(width);
         lastGrid[i] = new Array(width);
     }
+    selectPattern(-1);
     initOk = true;
 }
 
@@ -96,7 +93,7 @@ function sendHandler() {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
-                tosend.push({x: i, y: j});
+                tosend.push({x: j, y: i});
                 grid[i][j] = 1;
             }
         }
@@ -114,15 +111,26 @@ document.onmousemove = function(e) {
 };
 
 let patterncontext = document.getElementById('patternDrawer').getContext('2d');
+let patternSelectedId = -1;
 
+function selectPattern(id) {
+    patterncontext.clearRect(0, 0, 800, 800);
+    patternSelectedId = id;
+    if(id < 0) {
+        patterncanvas.width = 0;
+        patterncanvas.height = 0;
+        return;
+    }
 
-function drawPattern() {
-    for(let y = 0 ; y < 100 ; y++) {
-        for(let x = 0 ; x < 100 ; x++) {
+    let pattern = patterns[id];
+    patterncanvas.width = pattern[0].length * cellSize;
+    patterncanvas.height = pattern.length * cellSize;
+    for(let y = 0 ; y < pattern.length ; y++) {
+        for(let x = 0 ; x < pattern[y].length ; x++) {
             patterncontext.beginPath();
             patterncontext.rect(x * cellSize, y * cellSize, cellSize, cellSize);
             patterncontext.fillStyle = 'transparent';
-            if(patternGrid[y][x] === 1) {
+            if(pattern[y][x] === 1) {
                 patterncontext.fillStyle = 'violet';
             }
             patterncontext.fill();
@@ -131,14 +139,17 @@ function drawPattern() {
 }
 
 function applyPattern(pos_x, pos_y) {
-    for(let y = 0 ; y < 100 ; y++) {
-        for(let x = 0 ; x < 100 ; x++) {
+    if(patternSelectedId === -1)
+        return;
+    let pattern = patterns[patternSelectedId];
+    for(let y = 0 ; y < pattern.length ; y++) {
+        for(let x = 0 ; x < pattern[y].length ; x++) {
             let X = x+pos_x;
             let Y = y+pos_y;
             if(X < 0 || X >= width || Y < 0 || Y >= height) {
-                continue
+                continue;
             }
-            if(patternGrid[y][x] === 1) {
+            if (pattern[y][x] === 1) {
                 grid[Y][X] = 2;
             }
         }
@@ -168,16 +179,19 @@ function onCanvasOver(e) {
     };
     redrawCell(x, y, "black")
 
-    if(e.type === "mousedown") {
+    if(e.type === "mousedown" && patternSelectedId !== -1) {
         applyPattern(x, y);
         return
     }
+    if(patternSelectedId !== -1) {
+        return
+    }
 
-    if (!(e.buttons === 1 || e.buttons === 3)) {
+    if (!(e.buttons === 1 || e.buttons === 3 || e.type === "mousedown")) {
         return
     }
     let val = grid[y][x];
-    if (val < 2) {
+    if (val < 2 && !(e.type === "mousedown")) {
         grid[y][x] = 2;
     } else {
         grid[y][x] = 0;
