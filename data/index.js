@@ -50,9 +50,10 @@ function init(config) {
     for (let i = 0; i < 100; i++) {
         patternGrid[i] = new Array(100);
         for (let j = 0; j < 100; j++) {
-            patternGrid[i][j] = 0;
+            patternGrid[i][j] = Math.random() > 0.5 ? 1 : 0;
         }
     }
+    drawPattern()
 
     grid = new Array(height);
     lastGrid = new Array(height);
@@ -83,6 +84,7 @@ function resetGrids() {
         for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
                 grid[i][j] = 0;
+                redrawCell(j, i);
             }
         }
     }
@@ -90,17 +92,16 @@ function resetGrids() {
 
 // clear the grid
 function sendHandler() {
+    let tosend = [];
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
-                ws.send(JSON.stringify({
-                    x: j,
-                    y: i
-                }))
+                tosend.push({x: i, y: j});
                 grid[i][j] = 1;
             }
         }
     }
+    ws.send(JSON.stringify(tosend));
     draw()
 }
 
@@ -116,12 +117,34 @@ let patterncontext = document.getElementById('patternDrawer').getContext('2d');
 
 
 function drawPattern() {
-    patterncontext.beginPath();
-    patterncontext.rect(0, 0, 100, 100);
-    patterncontext.fillStyle = 'transparent';
-    patterncontext.fill();
+    for(let y = 0 ; y < 100 ; y++) {
+        for(let x = 0 ; x < 100 ; x++) {
+            patterncontext.beginPath();
+            patterncontext.rect(x * cellSize, y * cellSize, cellSize, cellSize);
+            patterncontext.fillStyle = 'transparent';
+            if(patternGrid[y][x] === 1) {
+                patterncontext.fillStyle = 'violet';
+            }
+            patterncontext.fill();
+        }
+    }
 }
 
+function applyPattern(pos_x, pos_y) {
+    for(let y = 0 ; y < 100 ; y++) {
+        for(let x = 0 ; x < 100 ; x++) {
+            let X = x+pos_x;
+            let Y = y+pos_y;
+            if(X < 0 || X >= width || Y < 0 || Y >= height) {
+                continue
+            }
+            if(patternGrid[y][x] === 1) {
+                grid[Y][X] = 2;
+            }
+        }
+    }
+    draw()
+}
 
 let canvas = document.getElementById('gridContainer');
 canvas.onmousedown = onCanvasOver;
@@ -144,11 +167,17 @@ function onCanvasOver(e) {
         y: y
     };
     redrawCell(x, y, "black")
-    if (!(e.buttons === 1 || e.buttons === 3 || e.type === "mousedown")) {
+
+    if(e.type === "mousedown") {
+        applyPattern(x, y);
+        return
+    }
+
+    if (!(e.buttons === 1 || e.buttons === 3)) {
         return
     }
     let val = grid[y][x];
-    if (val < 2 || e.type !== "mousedown") {
+    if (val < 2) {
         grid[y][x] = 2;
     } else {
         grid[y][x] = 0;
