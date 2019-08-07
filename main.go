@@ -13,5 +13,5 @@ func main() {
 	http.HandleFunc("/echo", wsHandler(gol))
 	http.Handle("/", http.FileServer(http.Dir("data/")))
 	fmt.Println("Init ok")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
