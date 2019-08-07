@@ -180,8 +180,8 @@ let lastpos = {
 
 function onCanvasOver(e) {
     let pos = getMousePos(canvas, e);
-    let x = Math.floor((pos.x - 2) / cellSize);
-    let y = Math.floor((pos.y - 2) / cellSize);
+    let x = Math.floor(pos.x / cellSize);
+    let y = Math.floor(pos.y / cellSize);
     redrawCell(lastpos.x, lastpos.y, "")
     lastpos = {
         x: x,
