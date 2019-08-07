@@ -8,35 +8,6 @@ body {
     float: left;
 }
 
-table {
-    background-color: #ffffff;
-    border-spacing: 0;
-    table-layout: fixed;
-}
-
-td {
-    width: 5px;
-    height: 5px;
-    min-width: 5px;
-    max-width: 5px;
-}
-
-span {
-    color: #222;
-}
-
-td.dead {
-    background-color: transparent;
-}
-
-td.live {
-    background-color: #000000;
-}
-
-td.activate {
-    background-color: #3d852a;
-}
-
 #game {
     width: 75%;
     margin:auto;

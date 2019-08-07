@@ -2,17 +2,18 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <script src="index.js"></script>
         <link href="index.css" rel="stylesheet" type="text/css">
         <title>Collagol - Collaborative Game of Life</title>
     </head>
     <body>
         <div id="game">
-            <div id="gridContainer" ondragstart="return false;"></div>
+            <canvas id="gridContainer" width="800" height="800"></canvas>
             <div id="controls">
                 <button class="minimal" onclick="sendHandler()">Send pattern</button>
                 <button class="minimal" onclick="clearButtonHandler()">Clear pattern</button>
             </div>
         </div>
+
+        <script src="index.js"></script>
     </body>
 </html>
