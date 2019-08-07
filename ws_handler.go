@@ -50,8 +50,6 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 					log.Println("read:", err)
 					break
 				}
-				log.Printf("recv: %v\n", p)
-
 				state.activateCell <- p
 			}
 		}()
