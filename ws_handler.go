@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -36,6 +35,7 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 		out := state.subscribe(int(id))
 
 		c.SetCloseHandler(func(code int, text string) error {
+			log.Println("Unsubscribing")
 			state.unSubscribe(int(id))
 			return nil
 		})
@@ -45,7 +45,6 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 		go func() {
 			for {
 				var p point
-				log.Println("Waiting")
 				err := c.ReadJSON(&p)
 				if err != nil {
 					log.Println("read:", err)
@@ -57,20 +56,12 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
-		go func() {
-			for newCells := range out {
-				s, err := json.Marshal(newCells)
-				if err != nil {
-					log.Println("Error during json marschal ", err)
-					continue
-				}
-				err = c.WriteJSON(s)
-				if err != nil {
-					log.Println("Write err: ", err)
-					continue
-				}
+		for newCells := range out {
+			err = c.WriteJSON(newCells)
+			if err != nil {
+				log.Println("Write err: ", err)
+				continue
 			}
-		}()
-
+		}
 	}
 }
