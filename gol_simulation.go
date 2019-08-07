@@ -16,18 +16,18 @@ type golState struct {
 	sub           chan subType
 }
 
-func newGolState(width, height int) *golState {
+func newGolState() *golState {
 	gs := golState{
-		grid:         make([][]int, height),
-		width:        width,
-		height:       height,
+		grid:         make([][]int, globalConf.Height),
+		width:        globalConf.Width,
+		height:       globalConf.Height,
 		activateCell: make(chan point, 10000),
 		unsub:        make(chan int, 1000),
 		sub:          make(chan subType, 1000),
 		updates:      make(map[int]chan [][]int),
 	}
-	for i := 0; i < height; i++ {
-		gs.grid[i] = make([]int, width)
+	for i := 0; i < gs.height; i++ {
+		gs.grid[i] = make([]int, gs.width)
 	}
 	return &gs
 }

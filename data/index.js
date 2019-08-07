@@ -36,15 +36,20 @@ let width = -1;
 let grid;
 let initOk = false;
 let cellSize = -1;
+let lastGrid;
 
 function init(config) {
     height = config.height;
     width = config.width;
     cellSize = config.cellSize;
 
+    console.log(config);
+
     grid = new Array(height);
+    lastGrid = new Array(height);
     for (let i = 0; i < height; i++) {
         grid[i] = new Array(width);
+        lastGrid[i] = new Array(width);
     }
     initOk = true;
 }
@@ -53,6 +58,7 @@ function init(config) {
 function receive(obj) {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
+            lastGrid[i][j] = grid[i][j];
             let val = obj[i][j];
             if (grid[i][j] !== 2) {
                 grid[i][j] = val;
@@ -86,6 +92,7 @@ function sendHandler() {
             }
         }
     }
+    draw()
 }
 
 let canvas = document.getElementById('gridContainer');
@@ -101,8 +108,8 @@ let lastpos = {
 
 function onCanvasOver(e) {
     let pos = getMousePos(canvas, e);
-    let x = Math.floor((pos.x - 2) / 8);
-    let y = Math.floor((pos.y - 2) / 8);
+    let x = Math.floor((pos.x - 2) / cellSize);
+    let y = Math.floor((pos.y - 2) / cellSize);
     redrawCell(lastpos.x, lastpos.y, "")
     lastpos = {
         x: x,
@@ -125,7 +132,7 @@ function redrawCell(x, y, color) {
         return
     }
     context.beginPath();
-    context.rect(x * 8, y * 8, 8, 8);
+    context.rect(x * cellSize, y * cellSize, cellSize, cellSize);
 
     if (color === "") {
         let cell = grid[y][x];
@@ -151,11 +158,14 @@ function getMousePos(canvas, evt) {
 }
 
 function draw() {
-    context.clearRect(0, 0, 1512, 512);
-    grid.forEach(function(row, y) {
-        row.forEach(function(cell, x) {
+    for (y = 0 ; y < height ; y++) {
+        for (x = 0 ; x < width ; x++) {
+            let cell = grid[y][x];
+            if (cell === lastGrid[y][x]) {
+                continue
+            }
             context.beginPath();
-            context.rect(x * 8, y * 8, 8, 8);
+            context.rect(x * cellSize, y * cellSize, cellSize, cellSize);
             if (x === lastpos.x && y === lastpos.y) {
                 context.fillStyle = 'black';
             } else if (cell === 1) {
@@ -166,8 +176,8 @@ function draw() {
                 context.fillStyle = 'white';
             }
             context.fill();
-        });
-    });
+        }
+    }
 }
 
 setInterval(function () {
