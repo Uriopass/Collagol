@@ -20,7 +20,7 @@ type point struct {
 
 var counter atomic.Int32
 
-func wsHandler(state golState) func(w http.ResponseWriter, r *http.Request) {
+func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
