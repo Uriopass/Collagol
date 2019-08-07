@@ -1,0 +1,35 @@
+body {
+    padding: 20px;
+    background-color: #444;
+}
+
+#gridContainer {
+    padding-bottom: 10px;
+}
+
+table {
+    background-color: #ffffff;
+    border-spacing: 0;
+}
+
+td {
+    border: 1px solid #bcbcbc;
+    width: 10px;
+    height: 10px;
+}
+
+span {
+    color: #222;
+}
+
+td.dead {
+    background-color: transparent;
+}
+
+td.live {
+    background-color: #000000;
+}
+
+td.activate {
+    background-color: #3d852a;
+}
