@@ -68,7 +68,7 @@ func (gs *golState) unSubscribe(id int) {
 }
 
 func (gs *golState) updateLoop() {
-	ticker := time.Tick(time.Second)
+	ticker := time.Tick(200 * time.Millisecond)
 
 	var lastGrid [][]int
 	for {

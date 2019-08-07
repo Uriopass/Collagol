@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	gol := newGolState(50, 50)
+	gol := newGolState(100, 100)
 	go gol.updateLoop()
 	log.SetFlags(0)
 	http.HandleFunc("/echo", wsHandler(gol))
