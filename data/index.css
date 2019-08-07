@@ -6,7 +6,6 @@ body {
 
 #gridContainer {
     padding-bottom: 10px;
-    float: left;
 }
 
 #connected {
@@ -21,14 +20,14 @@ body {
 }
 
 #game {
-    width: 75%;
+    width: 90%;
     margin:auto;
 }
 
 #controls {
     width: 250px;
     padding: 10px;
-    float: left;
+    float: right;
 }
 
 .minimal {
