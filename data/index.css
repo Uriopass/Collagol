@@ -1,11 +1,23 @@
 body {
-    padding: 20px;
     background-color: #444;
+    font-family: "helvetica", serif;
+    color: white;
 }
 
 #gridContainer {
     padding-bottom: 10px;
     float: left;
+}
+
+#connected {
+    width: 250px;
+    border: 1px gray solid;
+    margin: 2px;
+    border-radius: 3px;
+}
+
+#connected p {
+    text-align: center;
 }
 
 #game {
@@ -15,8 +27,8 @@ body {
 
 #controls {
     width: 250px;
-    display: flow-root;
     padding: 10px;
+    float: left;
 }
 
 .minimal {

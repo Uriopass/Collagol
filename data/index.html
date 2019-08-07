@@ -6,9 +6,14 @@
         <title>Collagol - Collaborative Game of Life</title>
     </head>
     <body>
+    <h1 style="text-align: center"><b>Collagol</b> - Collaborative Game of Life</h1>
+        <hr />
         <div id="game">
             <canvas id="gridContainer" width="800" height="800"></canvas>
             <div id="controls">
+                <div id="connected">
+                    <p><span id="connectedN">?</span> users online</p>
+                </div>
                 <button class="minimal" onclick="sendHandler()">Send pattern</button>
                 <button class="minimal" onclick="clearButtonHandler()">Clear pattern</button>
             </div>

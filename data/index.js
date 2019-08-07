@@ -23,6 +23,11 @@ const userAction = async () => {
     return await response.json();
 };
 
+const getConnected = async () => {
+    const response = await fetch('connected');
+    return await response.json();
+};
+
 userAction().then(data => init(data))
 
 
@@ -30,10 +35,12 @@ let height = -1;
 let width = -1;
 let grid;
 let initOk = false;
+let cellSize = -1;
 
 function init(config) {
     height = config.height;
     width = config.width;
+    cellSize = config.cellSize;
 
     grid = new Array(height);
     for (let i = 0; i < height; i++) {
@@ -162,6 +169,13 @@ function draw() {
         });
     });
 }
+
+setInterval(function () {
+    getConnected().then(function(data) {
+        document.getElementById("connectedN").innerHTML = data;
+
+    });
+}, 1000);
 
 function clearButtonHandler() {
     resetGrids()
