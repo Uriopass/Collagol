@@ -16,15 +16,18 @@ window.addEventListener("load", function(evt) {
     };
 });
 
+const userAction = async () => {
+    const response = await fetch('config');
+    const myJson = await response.json(); //extract JSON from the http response
+    // do something with myJson
+}
+
 let rows = 100;
 let cols = 100;
 
 let grid = new Array(rows);
-
-function initializeGrids() {
-    for (let i = 0; i < rows; i++) {
-        grid[i] = new Array(cols);
-    }
+for (let i = 0; i < rows; i++) {
+    grid[i] = new Array(cols);
 }
 
 function receive(obj) {
@@ -48,12 +51,6 @@ function resetGrids() {
             }
         }
     }
-}
-
-// Initialize
-function initialize() {
-    initializeGrids();
-    resetGrids();
 }
 
 // clear the grid
@@ -84,8 +81,8 @@ let lastpos = {
 
 function onCanvasOver(e) {
     let pos = getMousePos(canvas, e);
-    let x = Math.floor((pos.x - 1) / 8);
-    let y = Math.floor((pos.y - 1) / 8);
+    let x = Math.floor((pos.x - 2) / 8);
+    let y = Math.floor((pos.y - 2) / 8);
     redrawCell(lastpos.x, lastpos.y, "")
     lastpos = {
         x: x,
@@ -101,7 +98,6 @@ function onCanvasOver(e) {
     } else {
         grid[y][x] = 0;
     }
-    redrawCell(x, y, "");
 }
 
 function redrawCell(x, y, color) {
@@ -157,5 +153,3 @@ function draw() {
 function clearButtonHandler() {
     resetGrids()
 }
-
-window.onload = initialize;
