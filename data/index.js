@@ -10,6 +10,7 @@ window.addEventListener("load", function(evt) {
     };
     ws.onmessage = function(evt) {
         console.log("RESPONSE: " + evt.data);
+        receive(evt.data);
     };
     ws.onerror = function(evt) {
         console.log("ERROR: " + evt.data);
@@ -24,6 +25,23 @@ function initializeGrids() {
     for (let i = 0; i < rows; i++) {
         grid[i] = new Array(cols);
     }
+}
+
+function receive(obj) {
+    obj.forEach(function (elem) {
+        let x = elem["x"];
+        let y = elem["y"];
+        let val = elem["value"];
+        if(grid[y][x] !== 2) {
+            grid[y][x] = val;
+            let cell = document.getElementById(i + "_" + j);
+            if(val === 0) {
+                cell.setAttribute("class", "dead");
+            } else if(val === 1) {
+                cell.setAttribute("class", "alive");
+            }
+        }
+    });
 }
 
 function resetGrids() {
@@ -82,10 +100,10 @@ function sendHandler() {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
             if (grid[i][j] === 2) {
+                ws.send(JSON.stringify({x: j, y: i}))
                 let cell = document.getElementById(i + "_" + j);
                 cell.setAttribute("class", "live");
                 grid[i][j] = 1;
-                ws.send(JSON.stringify({x: j, y: i}))
             }
         }
     }
