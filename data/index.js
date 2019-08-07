@@ -46,6 +46,14 @@ function init(config) {
 
     console.log(config);
 
+    patternGrid = new Array(100);
+    for (let i = 0; i < 100; i++) {
+        patternGrid[i] = new Array(100);
+        for (let j = 0; j < 100; j++) {
+            patternGrid[i][j] = 0;
+        }
+    }
+
     grid = new Array(height);
     lastGrid = new Array(height);
     for (let i = 0; i < height; i++) {
@@ -99,11 +107,9 @@ function sendHandler() {
 
 let patterncanvas = document.getElementById('patternDrawer');
 
-document.onmousedown = onCanvasOver;
 document.onmousemove = function(e) {
     patterncanvas.style.left = e.pageX+"px";
     patterncanvas.style.top = e.pageY+"px";
-    onCanvasOver(e);
 };
 
 let patterncontext = document.getElementById('patternDrawer').getContext('2d');
