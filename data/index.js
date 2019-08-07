@@ -37,6 +37,7 @@ let grid;
 let initOk = false;
 let cellSize = -1;
 let lastGrid;
+let canvas = document.getElementById('gridContainer');
 
 patterns = [
 [[1, 1, 1],
@@ -58,6 +59,12 @@ function init(config) {
     height = config.height;
     width = config.width;
     cellSize = config.cellSize;
+
+    canvas.width = width*cellSize;
+    canvas.height = height*cellSize;
+    canvas.style.width = width*cellSize+"px";
+    canvas.style.height = height*cellSize+"px";
+    document.getElementById("game").style.width = (width*cellSize+300)+"px";
 
     console.log(config);
 
@@ -167,7 +174,6 @@ function applyPattern(pos_x, pos_y) {
     draw()
 }
 
-let canvas = document.getElementById('gridContainer');
 canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
 
