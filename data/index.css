@@ -20,8 +20,9 @@ body {
 }
 
 #game {
-    width: 90%;
+    width: 1300px;
     margin:auto;
+    text-align: center;
 }
 
 #controls {
