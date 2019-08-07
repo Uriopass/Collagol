@@ -37,6 +37,7 @@ let grid;
 let initOk = false;
 let cellSize = -1;
 let lastGrid;
+let patternGrid;
 
 function init(config) {
     height = config.height;
@@ -94,6 +95,27 @@ function sendHandler() {
     }
     draw()
 }
+
+
+let patterncanvas = document.getElementById('patternDrawer');
+
+document.onmousedown = onCanvasOver;
+document.onmousemove = function(e) {
+    patterncanvas.style.left = e.pageX+"px";
+    patterncanvas.style.top = e.pageY+"px";
+    onCanvasOver(e);
+};
+
+let patterncontext = document.getElementById('patternDrawer').getContext('2d');
+
+
+function drawPattern() {
+    patterncontext.beginPath();
+    patterncontext.rect(0, 0, 100, 100);
+    patterncontext.fillStyle = 'transparent';
+    patterncontext.fill();
+}
+
 
 let canvas = document.getElementById('gridContainer');
 canvas.onmousedown = onCanvasOver;
