@@ -1,6 +1,6 @@
 let ws;
 window.addEventListener("load", function(evt) {
-    ws = new WebSocket("ws://localhost:8080/echo");
+    ws = new WebSocket("ws://"+document.location.host+"/echo");
     ws.onopen = function(evt) {
         console.log("OPEN");
     };
