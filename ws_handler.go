@@ -11,6 +11,9 @@ import (
 
 var upgrader = websocket.Upgrader{
 	EnableCompression: true,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 type point struct {
@@ -27,6 +30,7 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 			log.Print("upgrade:", err)
 			return
 		}
+		log.Println("Upgraded conn from ", r.RemoteAddr)
 
 		id := counter.Inc()
 		out := state.subscribe(int(id))
@@ -37,17 +41,19 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 		})
 
 		defer func() { _ = c.Close() }()
+
 		go func() {
 			for {
 				var p point
+				log.Println("Waiting")
 				err := c.ReadJSON(&p)
 				if err != nil {
 					log.Println("read:", err)
 					break
 				}
+				log.Printf("recv: %v\n", p)
 
 				state.activateCell <- p
-				log.Printf("recv: %v\n", p)
 			}
 		}()
 

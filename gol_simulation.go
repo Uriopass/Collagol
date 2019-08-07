@@ -18,9 +18,13 @@ type golState struct {
 
 func newGolState(width, height int) *golState {
 	gs := golState{
-		grid:   make([][]int, height),
-		width:  width,
-		height: height,
+		grid:         make([][]int, height),
+		width:        width,
+		height:       height,
+		activateCell: make(chan point, 10000),
+		unsub:        make(chan int, 1000),
+		sub:          make(chan subType, 1000),
+		updates:      make(map[int]chan [][]int),
 	}
 	for i := 0; i < height; i++ {
 		gs.grid[i] = make([]int, width)
@@ -54,7 +58,7 @@ func (gs *golState) nextTimeStep() [][]int {
 }
 
 func (gs *golState) subscribe(id int) <-chan [][]int {
-	ch := make(chan [][]int)
+	ch := make(chan [][]int, 10)
 	gs.sub <- subType{id, ch}
 	return ch
 }
