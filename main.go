@@ -12,7 +12,7 @@ import (
 
 func main() {
 	rand.Seed(time.Now().Unix())
-	gol := newGolState()
+	gol := newGolState(globalConf)
 	go gol.updateLoop()
 
 	hub := newHub()

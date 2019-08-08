@@ -19,11 +19,11 @@ type golState struct {
 	sub           chan subType
 }
 
-func newGolState() *golState {
+func newGolState(config config) *golState {
 	gs := golState{
-		grid:         make([][]int, globalConf.Height),
-		width:        globalConf.Width,
-		height:       globalConf.Height,
+		grid:         make([][]int, config.Height),
+		width:        config.Width,
+		height:       config.Height,
 		activateCell: make(chan [][]point, 1000),
 		unsub:        make(chan int, 1000),
 		sub:          make(chan subType, 1000),
@@ -73,7 +73,7 @@ func (gs *golState) updateLoop() {
 	ticker := time.Tick(200 * time.Millisecond)
 
 	var lastGrid [][]int
-	for {
+	for iter := 0; ; iter++ {
 		select {
 		case <-ticker:
 			lastGrid = gs.nextTimeStep()
@@ -98,15 +98,15 @@ func (gs *golState) updateLoop() {
 			}
 		case pL := <-gs.activateCell:
 			for _, p := range pL[0] {
-				x := p.X
-				y := p.Y
+				x := p[0]
+				y := p[1]
 				if x >= 0 && x < gs.width && y >= 0 && y < gs.height {
 					gs.grid[y][x] = 1
 				}
 			}
 			for _, p := range pL[1] {
-				x := p.X
-				y := p.Y
+				x := p[0]
+				y := p[1]
 				if x >= 0 && x < gs.width && y >= 0 && y < gs.height {
 					gs.grid[y][x] = 0
 				}
@@ -114,19 +114,26 @@ func (gs *golState) updateLoop() {
 		}
 	}
 }
+
+var dec = [8][2]int{
+	{-1, -1},
+	{-1, 0},
+	{-1, 1},
+	{0, 1},
+	{0, -1},
+	{1, -1},
+	{1, 0},
+	{1, 1},
+}
+
 func (gs *golState) countNeighs(i, j int) int {
 	neighs := 0
-	for y := -1; y <= 1; y++ {
-		for x := -1; x <= 1; x++ {
-			if x == 0 && y == 0 {
-				continue
-			}
-			newx := (j + x + gs.width) % gs.width
-			newy := (i + y + gs.height) % gs.height
+	for _, xy := range dec {
+		newx := (j + xy[0] + gs.width) % gs.width
+		newy := (i + xy[1] + gs.height) % gs.height
 
-			if gs.grid[newy][newx] == 1 {
-				neighs++
-			}
+		if gs.grid[newy][newx] == 1 {
+			neighs++
 		}
 	}
 	return neighs

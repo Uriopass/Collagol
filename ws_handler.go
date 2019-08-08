@@ -16,10 +16,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type point struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-}
+type point [2]int
 
 var counter atomic.Int32
 

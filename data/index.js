@@ -306,17 +306,11 @@ function sendHandler() {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
-                tosend.push({
-                    x: j,
-                    y: i
-                });
+                tosend.push([j, i]);
                 grid[i][j] = 1;
             }
             if (grid[i][j] === 3) {
-                todel.push({
-                    x: j,
-                    y: i
-                });
+                todel.push([j, i]);
                 grid[i][j] = 0;
             }
         }
@@ -332,10 +326,7 @@ function sendDeletion() {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             if (grid[i][j] === 3) {
-                todel.push({
-                    x: j,
-                    y: i
-                });
+                todel.push([j, i]);
                 grid[i][j] = 0;
                 redrawCell(j, i, "")
             }
@@ -355,10 +346,7 @@ function sendClear() {
 
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
-            todel.push({
-                x: j,
-                y: i
-            });
+            todel.push([j, i]);
             grid[i][j] = 0;
             redrawCell(j, i, "")
         }
@@ -480,9 +468,6 @@ function redrawCell(x, y, color) {
     if (x < 0 || y < 0 || x >= width || y >= height) {
         return
     }
-    context.beginPath();
-    context.rect(x * cellSize, y * cellSize, cellSize, cellSize);
-
     if (color === undefined || color === "") {
         let cell = grid[y][x];
         if (cell === 3) {
@@ -496,8 +481,8 @@ function redrawCell(x, y, color) {
         }
     }
     context.fillStyle = color;
+    context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-    context.fill();
 }
 
 function getMousePos(canvas, evt) {
@@ -515,8 +500,6 @@ function draw() {
             if (cell === lastGrid[y][x]) {
                 continue
             }
-            context.beginPath();
-            context.rect(x * cellSize, y * cellSize, cellSize, cellSize);
             if (x === lastpos.x && y === lastpos.y) {
                 context.fillStyle = 'black';
             } else if (cell === 1) {
@@ -528,7 +511,7 @@ function draw() {
             } else {
                 context.fillStyle = bgcolor;
             }
-            context.fill();
+            context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
         }
     }
 }
