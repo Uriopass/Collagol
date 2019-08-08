@@ -263,6 +263,7 @@ function sendDeletion() {
                     y: i
                 });
                 grid[i][j] = 0;
+                redrawCell(j, i, "")
             }
         }
     }
@@ -272,7 +273,6 @@ function sendDeletion() {
     }
 
     ws.send(JSON.stringify([tosend, todel]));
-    draw()
 }
 
 function sendClear() {
