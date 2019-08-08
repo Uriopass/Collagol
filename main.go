@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"log"
 	"math/rand"
@@ -11,14 +10,20 @@ import (
 	"time"
 )
 
-
-
 func main() {
 	rand.Seed(time.Now().Unix())
 	gol := newGolState()
 	go gol.updateLoop()
+
+	hub := newHub()
+	go hub.run()
+
 	log.SetFlags(0)
+	// websockets
 	http.HandleFunc("/echo", wsHandler(gol))
+	http.HandleFunc("/message", messagingWs(hub))
+
+	// http info
 	http.HandleFunc("/config", func(writer http.ResponseWriter, request *http.Request) {
 		s, _ := json.Marshal(globalConf)
 		_, _ = writer.Write(s)
@@ -28,10 +33,13 @@ func main() {
 		s, _ := json.Marshal(connected)
 		_, _ = writer.Write(s)
 	})
+	// Media
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/index.html", serveIndex)
 	http.Handle("/data/", http.FileServer(http.Dir(".")))
-	fmt.Println("Init ok")
+
+	// Start
+	log.Println("Init ok")
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
 
