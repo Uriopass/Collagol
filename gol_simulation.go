@@ -41,14 +41,13 @@ func (gs *golState) nextTimeStep() [][]int {
 		tmpGrid[i] = make([]int, gs.width)
 		for j := 0; j < gs.width; j++ {
 			neighs := gs.countNeighs(i, j)
-			if neighs < 2 || neighs > 3 {
-				tmpGrid[i][j] = 0
-			}
-			if neighs == 3 {
+			switch neighs {
+			case 3:
 				tmpGrid[i][j] = 1
-			}
-			if neighs == 2 {
+			case 2:
 				tmpGrid[i][j] = gs.grid[i][j]
+			default:
+				tmpGrid[i][j] = 0
 			}
 		}
 	}
@@ -122,10 +121,10 @@ func (gs *golState) countNeighs(i, j int) int {
 			if x == 0 && y == 0 {
 				continue
 			}
-			newx := j + x
-			newy := i + y
+			newx := (j + x + gs.width) % gs.width
+			newy := (i + y + gs.height) % gs.height
 
-			if newx >= 0 && newx < gs.width && newy >= 0 && newy < gs.height && gs.grid[newy][newx] == 1 {
+			if gs.grid[newy][newx] == 1 {
 				neighs++
 			}
 		}
