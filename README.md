@@ -12,3 +12,4 @@ Collagol stands for Collaborative Game of Life is a persistent game of life univ
  * RLE Sharing
  * Temporary RLE
  * Bigger eraser
+ * Identify which cells was placed by player
