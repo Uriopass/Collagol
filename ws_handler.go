@@ -50,6 +50,7 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 				err := c.ReadJSON(&p)
 				if err != nil {
 					log.Println("read:", err)
+					_ = c.Close()
 					break
 				}
 				state.activateCell <- p
