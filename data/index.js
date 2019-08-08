@@ -51,8 +51,9 @@ window.addEventListener("load", function(evt) {
 
 function sendMessage() {
     let val = document.getElementById("messageText").value;
+    let username = document.getElementById("usernameText").value;
     document.getElementById("messageText").value = "";
-    messageWs.send(val);
+    messageWs.send(`${username}: ${val}`);
 }
 
 const userAction = async () => {
@@ -246,7 +247,7 @@ function init(config) {
     canvas.height = height * cellSize;
     canvas.style.width = width * cellSize + "px";
     canvas.style.height = height * cellSize + "px";
-    document.getElementById("game").style.width = (width * cellSize + 550) + "px";
+    document.getElementById("game").style.width = (width * cellSize + 600) + "px";
 
     console.log(config);
 
