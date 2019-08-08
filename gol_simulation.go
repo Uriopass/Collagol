@@ -80,7 +80,7 @@ func (gs *golState) updateLoop() {
 			lastGrid = gs.nextTimeStep()
 			for id, ch := range gs.updates {
 				select {
-					case ch <- lastGrid:
+				case ch <- lastGrid:
 				default:
 					log.Println("Channel full, dropping connection")
 					close(ch)
