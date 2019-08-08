@@ -1,29 +1,61 @@
 let ws;
+let messageWs;
 
 function initws() {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
-    ws.onopen = function (evt) {
+    ws.onopen = function(evt) {
         console.log("OPEN");
     };
-    ws.onclose = function (evt) {
+    ws.onclose = function(evt) {
         console.log("CLOSE retrying...");
-        setTimeout(function () {
+        setTimeout(function() {
             initws()
         }, 1000);
     };
-    ws.onmessage = function (evt) {
+    ws.onmessage = function(evt) {
         if (!initOk)
             return;
         receive(JSON.parse(evt.data));
     };
-    ws.onerror = function (evt) {
+    ws.onerror = function(evt) {
         console.log("ERROR: " + evt.data);
     };
 }
 
-window.addEventListener("load", function (evt) {
+function initChatroom() {
+    let messageDiv = document.getElementById("messages");
+    messageDiv.innerHTML = "";
+    messageWs = new WebSocket("ws://" + document.location.host + "/message");
+    messageWs.onopen = function(evt) {
+        console.log("OPEN");
+    };
+    messageWs.onclose = function(evt) {
+        console.log("CLOSE retrying...");
+        /*
+        setTimeout(function() {
+            initChatroom()
+        }, 1000);
+         */
+    };
+    messageWs.onmessage = function(evt) {
+        messageDiv.innerHTML +=`<li class="message">${evt.data}</li>`
+        messageDiv.scrollTop = messageDiv.scrollHeight;
+    };
+    messageWs.onerror = function(evt) {
+        console.log("ERROR: " + evt.data);
+    };
+}
+
+window.addEventListener("load", function(evt) {
+    initChatroom();
     initws();
 });
+
+function sendMessage() {
+    let val = document.getElementById("messageText").value;
+    document.getElementById("messageText").value = "";
+    messageWs.send(val);
+}
 
 const userAction = async () => {
     const response = await fetch('config');
@@ -172,6 +204,37 @@ patterns = [
         [-1, -1, -1, -1, -1],
         [-1, -1, -1, -1, -1],
         [-1, -1, -1, -1, -1],
+    ],
+    [
+        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ]
 ];
 
@@ -185,7 +248,7 @@ function init(config) {
     canvas.height = height * cellSize;
     canvas.style.width = width * cellSize + "px";
     canvas.style.height = height * cellSize + "px";
-    document.getElementById("game").style.width = (width * cellSize + 300) + "px";
+    document.getElementById("game").style.width = (width * cellSize + 550) + "px";
 
     console.log(config);
 
@@ -301,7 +364,7 @@ function sendClear() {
 
 let patterncanvas = document.getElementById('patternDrawer');
 
-document.onmousemove = function (e) {
+document.onmousemove = function(e) {
     patterncanvas.style.left = (e.pageX - Math.floor(patterncanvas.width / 2)) + "px";
     patterncanvas.style.top = (e.pageY - Math.floor(patterncanvas.height / 2)) + "px";
 };
@@ -362,7 +425,7 @@ canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
 canvas.onmouseup = sendDeletion;
 
-canvas.onmouseleave = function (e) {
+canvas.onmouseleave = function(e) {
     let pos = getMousePos(canvas, e);
     let x = Math.floor(pos.x / cellSize);
     let y = Math.floor(pos.y / cellSize);
@@ -554,7 +617,6 @@ function parseRLE() {
     if (decodedpattern.length === 1 && decodedpattern[0].length <= 1) {
         return
     }
-    console.log(decodedpattern);
     patterns.push(decodedpattern);
     if (name === "") {
         name = "Custom brush #" + customCounter++;
@@ -563,8 +625,8 @@ function parseRLE() {
     custombrushdiv.innerHTML += `<button class="minimal" onclick="selectPattern(${patterns.length - 1})">${name}</button>`;
 }
 
-setInterval(function () {
-    getConnected().then(function (data) {
+setInterval(function() {
+    getConnected().then(function(data) {
         document.getElementById("connectedN").innerHTML = data;
 
     });

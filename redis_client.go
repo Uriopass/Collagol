@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -48,12 +49,14 @@ func (rc *redisClient) getHistory() (timeMessages []timeMessage) {
 	c := rc.pool.Get()
 	defer c.Close()
 
-	keys, err := redis.Values(c.Do("keys *"))
+	keys, err := redis.Values(c.Do("KEYS", "*"))
 	if err != nil {
+		log.Println("redis err keys", err)
 		return
 	}
 	values, err := redis.Strings(c.Do("MGET", keys...))
 	if err != nil {
+		log.Println("redis err values", err)
 		return
 	}
 

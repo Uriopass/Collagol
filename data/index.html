@@ -9,6 +9,11 @@
         <h1 style="text-align: center"><b>Collagol</b> - Collaborative Game of Life</h1>
         <hr/>
         <div id="game">
+            <div id="chatbox">
+                <ul id="messages">
+                </ul>
+                <input placeholder="Enter your message here" id="messageText" type="text" onkeydown="if(event.key==='Enter') sendMessage();"/>
+            </div>
             <canvas id="gridContainer" width="800" height="800"></canvas>
             <div id="controls">
                 <div id="connected">
@@ -23,6 +28,7 @@
                 <button class="minimal" onclick="selectPattern(1)">Glider Gun</button>
                 <button class="minimal" onclick="selectPattern(2)">Pulsar</button>
                 <button class="minimal" onclick="selectPattern(3)">Sir Robin</button>
+                <button class="minimal" onclick="selectPattern(5)">MWSS Gun</button>
                 <div style="width: 250px; text-align: center"><h2>Custom Brushes</h2></div>
                 <div id="customBrushes"></div>
                 <textarea id="rletext" style="width:250px; max-width: 250px; height: 100px;"></textarea>

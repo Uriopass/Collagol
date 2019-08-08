@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 const (
@@ -66,6 +67,7 @@ func (c *Client) readPump() {
 		if err != nil {
 			break
 		}
+		message = bluemonday.UGCPolicy().SanitizeBytes(message)
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 		c.hub.broadcast <- message
 	}
@@ -96,12 +98,6 @@ func (c *Client) writePump() {
 				return
 			}
 			_, _ = w.Write(message)
-			// Add queued chat messages to the current websocket message.
-			n := len(c.send)
-			for i := 0; i < n; i++ {
-				_, _ = w.Write(newline)
-				_, _ = w.Write(<-c.send)
-			}
 			if err := w.Close(); err != nil {
 				return
 			}

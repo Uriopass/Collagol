@@ -31,6 +31,7 @@ func newHub() *Hub {
 		rc:         initRedisClient(),
 	}
 	h.history = h.rc.getHistory()
+	log.Println("Parsed ", len(h.history), " messages")
 	return h
 }
 
