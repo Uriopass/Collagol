@@ -252,6 +252,22 @@ function sendHandler() {
     draw()
 }
 
+function sendClear() {
+    let tosend = [];
+    let todel = [];
+
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            todel.push({
+                x: j,
+                y: i
+            });
+            grid[i][j] = 0;
+        }
+    }
+    ws.send(JSON.stringify([tosend, todel]));
+    draw()
+}
 
 let patterncanvas = document.getElementById('patternDrawer');
 

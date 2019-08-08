@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 type subType struct {
 	id int
@@ -75,12 +78,20 @@ func (gs *golState) updateLoop() {
 		select {
 		case <-ticker:
 			lastGrid = gs.nextTimeStep()
-			for _, ch := range gs.updates {
-				ch <- lastGrid
+			for id, ch := range gs.updates {
+				select {
+					case ch <- lastGrid:
+				default:
+					log.Println("Channel full, dropping connection")
+					close(ch)
+					delete(gs.updates, id)
+				}
 			}
 		case id := <-gs.unsub:
-			close(gs.updates[id])
-			delete(gs.updates, id)
+			if _, ok := gs.updates[id]; ok {
+				close(gs.updates[id])
+				delete(gs.updates, id)
+			}
 		case s := <-gs.sub:
 			gs.updates[s.id] = s.c
 			if lastGrid != nil {
