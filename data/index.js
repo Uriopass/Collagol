@@ -225,7 +225,6 @@ function resetGrids() {
     }
 }
 
-// clear the grid
 function sendHandler() {
     let tosend = [];
     let todel = [];
@@ -252,6 +251,30 @@ function sendHandler() {
     draw()
 }
 
+function sendDeletion() {
+    let tosend = [];
+    let todel = [];
+
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            if (grid[i][j] === 3) {
+                todel.push({
+                    x: j,
+                    y: i
+                });
+                grid[i][j] = 0;
+            }
+        }
+    }
+
+    if (todel.length === 0) {
+        return;
+    }
+
+    ws.send(JSON.stringify([tosend, todel]));
+    draw()
+}
+
 function sendClear() {
     let tosend = [];
     let todel = [];
@@ -273,7 +296,7 @@ let patterncanvas = document.getElementById('patternDrawer');
 
 document.onmousemove = function (e) {
     patterncanvas.style.left = (e.pageX - Math.floor(patterncanvas.width / 2)) + "px";
-    patterncanvas.style.top = (e.pageY -  Math.floor(patterncanvas.height/ 2)) + "px";
+    patterncanvas.style.top = (e.pageY - Math.floor(patterncanvas.height / 2)) + "px";
 };
 
 let patterncontext = document.getElementById('patternDrawer').getContext('2d');
@@ -330,7 +353,9 @@ function applyPattern(pos_x, pos_y) {
 
 canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
-canvas.onmouseleave = function(e) {
+canvas.onmouseup = sendDeletion;
+
+canvas.onmouseleave = function (e) {
     let pos = getMousePos(canvas, e);
     let x = Math.floor(pos.x / cellSize);
     let y = Math.floor(pos.y / cellSize);
@@ -353,13 +378,13 @@ function onCanvasOver(e) {
         x: x,
         y: y
     };
-    if(patternSelectedId === -1) {
+    if (patternSelectedId === -1) {
         redrawCell(x, y, "blue");
     }
     let isclick = e.buttons === 1 || e.buttons === 3;
 
     if ((e.type === "mousedown" || (isclick && patternSelectedId === 4)) && patternSelectedId !== -1) {
-        applyPattern(x - Math.floor(patterncanvas.width/2/cellSize), y - Math.floor(patterncanvas.height/2/cellSize));
+        applyPattern(x - Math.floor(patterncanvas.width / 2 / cellSize), y - Math.floor(patterncanvas.height / 2 / cellSize));
         return
     }
     if (patternSelectedId !== -1) {
