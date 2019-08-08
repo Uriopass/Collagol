@@ -23,19 +23,17 @@ function initws() {
 }
 
 function initChatroom() {
-    let messageDiv = document.getElementById("messages");
-    messageDiv.innerHTML = "";
     messageWs = new WebSocket("ws://" + document.location.host + "/message");
     messageWs.onopen = function(evt) {
         console.log("OPEN");
+        let messageDiv = document.getElementById("messages");
+        messageDiv.innerHTML = "";
     };
     messageWs.onclose = function(evt) {
-        console.log("CLOSE retrying...");
-        /*
+        console.log("Lost connection to chat retrying...");
         setTimeout(function() {
             initChatroom()
         }, 1000);
-         */
     };
     messageWs.onmessage = function(evt) {
         messageDiv.innerHTML +=`<li class="message">${evt.data}</li>`
