@@ -23,10 +23,10 @@ function initws() {
 }
 
 function initChatroom() {
+    let messageDiv = document.getElementById("messages");
     messageWs = new WebSocket("ws://" + document.location.host + "/message");
     messageWs.onopen = function(evt) {
         console.log("OPEN");
-        let messageDiv = document.getElementById("messages");
         messageDiv.innerHTML = "";
     };
     messageWs.onclose = function(evt) {
