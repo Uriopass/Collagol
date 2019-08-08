@@ -22,7 +22,7 @@ function initws() {
 }
 
 window.addEventListener("load", function (evt) {
-
+    initws();
 });
 
 const userAction = async () => {
