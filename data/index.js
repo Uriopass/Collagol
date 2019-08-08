@@ -216,10 +216,10 @@ function resetGrids() {
         for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
                 grid[i][j] = 0;
-                redrawCell(j, i);
+                redrawCell(j, i, "");
             } else if (grid[i][j] === 3) {
                 grid[i][j] = 0;
-                redrawCell(j, i);
+                redrawCell(j, i, "");
             }
         }
     }
@@ -409,7 +409,7 @@ function redrawCell(x, y, color) {
     context.beginPath();
     context.rect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-    if (color === "") {
+    if (color === undefined || color === "") {
         let cell = grid[y][x];
         if (cell === 3) {
             color = erasecolor;

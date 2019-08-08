@@ -29,7 +29,15 @@ a:visited {
 }
 
 a {
-    color: #4c4cff;
+    color: #6297ff;
+}
+
+#bottomMessage {
+    width: 500px;
+    border-radius: 5px;
+    border: 1px solid #bbb;
+    text-align: center;
+    margin: auto;
 }
 
 #game {
@@ -46,7 +54,7 @@ a {
 
 .minimal {
     background: white;
-    border: 1px solid #bbb;
+    border: 1px solid #555;
     border-radius: 3px;
     -webkit-box-shadow: inset 0 0 1px 1px #f6f6f6;
     box-shadow: inset 0 0 1px 1px #f6f6f6;

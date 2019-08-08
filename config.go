@@ -7,7 +7,7 @@ type config struct {
 }
 
 var globalConf = config{
-	Width:    300,
-	Height:   300,
-	CellSize: 3,
+	Width:    400,
+	Height:   400,
+	CellSize: 2,
 }
