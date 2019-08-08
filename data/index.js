@@ -78,7 +78,6 @@ function init(config) {
     initOk = true;
 }
 
-
 function receive(obj) {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
@@ -265,6 +264,64 @@ function draw() {
             context.fill();
         }
     }
+}
+
+function decode(string) {
+    let cells = [];
+    let ignore = false;
+    let step = 1;
+    let x = 0;
+    let y = 0;
+    let match, number;
+    let width = 0, height = 0;
+    for (let i = 0; i < string.length; i++) {
+        if (ignore) {
+            if (string[i] === "\n") {
+                ignore = false
+            }
+            continue
+        }
+        switch (string[i]) {
+            case "#":
+            case "x":
+            case "!":
+                ignore = true;
+                continue;
+            case "$":
+                x = 0;
+                y++;
+                height = y>height?y:height;
+                continue;
+            case "b":
+                x += step;
+                step = 1;
+                continue;
+            case "o":
+                for (let j = 0; j < step; j++) {
+                    cells.push(x++, y);
+                    width = x>width?x:width;
+                }
+                step = 1;
+                continue
+        }
+        match = string.slice(i).match(/[0-9]+/);
+        if (match && !match.index) {
+            number = match[0];
+            step = parseInt(number);
+            i += number.length - 1
+        }
+    }
+
+    grid = new Array(height);
+    for(let i = 0 ; i < height ; i++) {
+        grid[i] = new Array(width);
+    }
+    for(let i = 0 ; i < cells.length ; i++) {
+        let cell = cells[i];
+        grid[cell[1]][cell[0]] = 1
+    }
+
+    return grid
 }
 
 setInterval(function () {
