@@ -17,8 +17,12 @@ func BenchmarkTimestep(t *testing.B) {
 		tmpGrid[i] = rand.Int() % 2
 	}
 	for k := 0; k < t.N; k++ {
-		copy(gs.grid, tmpGrid)
-		for j := 0; j < 10; j++ {
+		for i := 0; i < gs.height; i++ {
+			for j := 0; j < gs.width; j++ {
+				gs.grid[i][j] = tmpGrid[i*gs.width+j]
+			}
+		}
+		for i := 0; i < 10; i++ {
 			gs.nextTimeStep()
 		}
 	}

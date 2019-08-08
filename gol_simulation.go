@@ -37,26 +37,47 @@ func newGolState(config config) *golState {
 	return &gs
 }
 
+func (gs *golState) updateCase(i, j, neighs int, tmpGrid grid) {
+	switch neighs {
+	case 3:
+		tmpGrid[i][j] = 1
+	case 2:
+		tmpGrid[i][j] = gs.grid[i][j]
+	default:
+		tmpGrid[i][j] = 0
+	}
+}
+
 func (gs *golState) nextTimeStep() grid {
 	tmpGrid := make(grid, gs.height)
 	for i := 0; i < gs.height; i++ {
 		tmpGrid[i] = make([]int, gs.width)
-		for j := 0; j < gs.width; j++ {
-			neighs := gs.countNeighs(i, j)
-			switch neighs {
-			case 3:
-				tmpGrid[i][j] = 1
-			case 2:
-				tmpGrid[i][j] = gs.grid[i][j]
-			default:
-				tmpGrid[i][j] = 0
-			}
+	}
+
+	// Center
+	for i := 1; i < gs.height-1; i++ {
+		for j := 1; j < gs.width-1; j++ {
+			neighs := gs.fastNeighs(i, j)
+			gs.updateCase(i, j, neighs, tmpGrid)
 		}
 	}
-	for i := 0; i < gs.height; i++ {
-		for j := 0; j < gs.width; j++ {
-			gs.grid[i][j] = tmpGrid[i][j]
+
+	// Bounds
+	for i := 1; i < gs.height-1; i++ {
+		for j := 0; j < gs.width; j += gs.width - 1 {
+			neighs := gs.countNeighsTorus(i, j)
+			gs.updateCase(i, j, neighs, tmpGrid)
 		}
+	}
+	for i := 0; i < gs.height; i += gs.height - 1 {
+		for j := 1; j < gs.width-1; j++ {
+			neighs := gs.countNeighsTorus(i, j)
+			gs.updateCase(i, j, neighs, tmpGrid)
+		}
+	}
+
+	for i := 0; i < gs.height; i++ {
+		copy(gs.grid[i], tmpGrid[i])
 	}
 	return tmpGrid
 }
@@ -128,12 +149,25 @@ var dec = [8][2]int{
 	{1, 1},
 }
 
-func (gs *golState) countNeighs(i, j int) int {
+func (gs *golState) countNeighsTorus(x, y int) int {
 	neighs := 0
 	for i := 0; i < 8; i++ {
 		xy := dec[i]
-		newx := (j + xy[0] + gs.width) % gs.width
-		newy := (i + xy[1] + gs.height) % gs.height
+		newx := (x + xy[0] + gs.width) % gs.width
+		newy := (y + xy[1] + gs.height) % gs.height
+		if gs.grid[newy][newx] == 1 {
+			neighs++
+		}
+	}
+	return neighs
+}
+
+func (gs *golState) fastNeighs(x, y int) int {
+	neighs := 0
+	for i := 0; i < 8; i++ {
+		xy := dec[i]
+		newx := x + xy[0]
+		newy := y + xy[1]
 		if gs.grid[newy][newx] == 1 {
 			neighs++
 		}
