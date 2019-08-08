@@ -5,29 +5,31 @@ import (
 	"time"
 )
 
+type grid [][]int
+
 type subType struct {
 	id int
-	c  chan [][]int
+	c  chan grid
 }
 
 type golState struct {
-	grid          [][]int
+	grid          grid
 	width, height int
 	activateCell  chan [][]point
-	updates       map[int]chan [][]int
+	updates       map[int]chan grid
 	unsub         chan int
 	sub           chan subType
 }
 
 func newGolState(config config) *golState {
 	gs := golState{
-		grid:         make([][]int, config.Height),
+		grid:         make(grid, config.Height),
 		width:        config.Width,
 		height:       config.Height,
 		activateCell: make(chan [][]point, 1000),
 		unsub:        make(chan int, 1000),
 		sub:          make(chan subType, 1000),
-		updates:      make(map[int]chan [][]int),
+		updates:      make(map[int]chan grid),
 	}
 	for i := 0; i < gs.height; i++ {
 		gs.grid[i] = make([]int, gs.width)
@@ -35,8 +37,8 @@ func newGolState(config config) *golState {
 	return &gs
 }
 
-func (gs *golState) nextTimeStep() [][]int {
-	tmpGrid := make([][]int, gs.height)
+func (gs *golState) nextTimeStep() grid {
+	tmpGrid := make(grid, gs.height)
 	for i := 0; i < gs.height; i++ {
 		tmpGrid[i] = make([]int, gs.width)
 		for j := 0; j < gs.width; j++ {
@@ -59,8 +61,8 @@ func (gs *golState) nextTimeStep() [][]int {
 	return tmpGrid
 }
 
-func (gs *golState) subscribe(id int) <-chan [][]int {
-	ch := make(chan [][]int, 10)
+func (gs *golState) subscribe(id int) <-chan grid {
+	ch := make(chan grid, 10)
 	gs.sub <- subType{id, ch}
 	return ch
 }
@@ -72,7 +74,7 @@ func (gs *golState) unSubscribe(id int) {
 func (gs *golState) updateLoop() {
 	ticker := time.Tick(200 * time.Millisecond)
 
-	var lastGrid [][]int
+	var lastGrid grid
 	for iter := 0; ; iter++ {
 		select {
 		case <-ticker:
@@ -128,10 +130,10 @@ var dec = [8][2]int{
 
 func (gs *golState) countNeighs(i, j int) int {
 	neighs := 0
-	for _, xy := range dec {
+	for i := 0; i < 8; i++ {
+		xy := dec[i]
 		newx := (j + xy[0] + gs.width) % gs.width
 		newy := (i + xy[1] + gs.height) % gs.height
-
 		if gs.grid[newy][newx] == 1 {
 			neighs++
 		}
