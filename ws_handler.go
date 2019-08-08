@@ -40,7 +40,10 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 			return nil
 		})
 
-		defer func() { _ = c.Close() }()
+		defer func() {
+			_ = c.Close()
+			state.unSubscribe(int(id))
+		}()
 
 		go func() {
 			for {
@@ -58,7 +61,7 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 			err = c.WriteJSON(newCells)
 			if err != nil {
 				log.Println("Write err: ", err)
-				continue
+				break
 			}
 		}
 	}
