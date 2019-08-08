@@ -1,12 +1,15 @@
 let ws;
-window.addEventListener("load", function (evt) {
+
+function initws() {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
     ws.onopen = function (evt) {
         console.log("OPEN");
     };
     ws.onclose = function (evt) {
-        console.log("CLOSE");
-        ws = null;
+        console.log("CLOSE retrying...");
+        setTimeout(function () {
+            initws()
+        }, 1000);
     };
     ws.onmessage = function (evt) {
         if (!initOk)
@@ -16,6 +19,10 @@ window.addEventListener("load", function (evt) {
     ws.onerror = function (evt) {
         console.log("ERROR: " + evt.data);
     };
+}
+
+window.addEventListener("load", function (evt) {
+
 });
 
 const userAction = async () => {
