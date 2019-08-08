@@ -8,6 +8,7 @@ collagol
 Collagol
 # Test binary, build with `go test -c`
 *.test
+*.err
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
