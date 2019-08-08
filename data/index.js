@@ -206,7 +206,7 @@ function onCanvasOver(e) {
         return
     }
     let val = grid[y][x];
-    if (val < 2 && !(e.type === "mousedown")) {
+    if (val < 2 || (e.type !== "mousedown")) {
         grid[y][x] = 2;
     } else {
         grid[y][x] = 0;
