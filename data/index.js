@@ -41,6 +41,10 @@ let canvas = document.getElementById('gridContainer');
 let patternWidth = 0;
 let patternHeight = 0;
 
+let bgcolor = 'black';
+let fgcolor = 'white';
+let activatecolor = 'violet';
+let erasecolor = 'red';
 
 patterns = [
     [
@@ -277,9 +281,9 @@ function selectPattern(id) {
             patterncontext.rect(x * cellSize, y * cellSize, cellSize, cellSize);
             patterncontext.fillStyle = 'transparent';
             if (pattern[y][x] === 1) {
-                patterncontext.fillStyle = 'violet';
+                patterncontext.fillStyle = activatecolor;
             } else if (pattern[y][x] === -1) {
-                patterncontext.fillStyle = 'red';
+                patterncontext.fillStyle = erasecolor;
             }
             patterncontext.fill();
         }
@@ -310,6 +314,12 @@ function applyPattern(pos_x, pos_y) {
 
 canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
+canvas.onmouseleave = function(e) {
+    let pos = getMousePos(canvas, e);
+    let x = Math.floor(pos.x / cellSize);
+    let y = Math.floor(pos.y / cellSize);
+    redrawCell(lastpos.x, lastpos.y, "");
+};
 
 let context = document.getElementById('gridContainer').getContext('2d');
 let lastpos = {
@@ -327,8 +337,9 @@ function onCanvasOver(e) {
         x: x,
         y: y
     };
-    redrawCell(x, y, "black");
-
+    if(patternSelectedId === -1) {
+        redrawCell(x, y, "blue");
+    }
     let isclick = e.buttons === 1 || e.buttons === 3;
 
     if ((e.type === "mousedown" || (isclick && patternSelectedId === 4)) && patternSelectedId !== -1) {
@@ -360,13 +371,13 @@ function redrawCell(x, y, color) {
     if (color === "") {
         let cell = grid[y][x];
         if (cell === 3) {
-            color = 'red';
+            color = erasecolor;
         } else if (cell === 2) {
-            color = 'violet';
+            color = activatecolor;
         } else if (cell === 1) {
-            color = 'cadetblue';
+            color = fgcolor;
         } else {
-            color = 'white';
+            color = bgcolor;
         }
     }
     context.fillStyle = color;
@@ -394,13 +405,13 @@ function draw() {
             if (x === lastpos.x && y === lastpos.y) {
                 context.fillStyle = 'black';
             } else if (cell === 1) {
-                context.fillStyle = 'cadetblue';
+                context.fillStyle = fgcolor;
             } else if (cell === 2) {
-                context.fillStyle = 'violet';
+                context.fillStyle = activatecolor;
             } else if (cell === 3) {
-                context.fillStyle = 'red';
+                context.fillStyle = erasecolor;
             } else {
-                context.fillStyle = 'white';
+                context.fillStyle = bgcolor;
             }
             context.fill();
         }
