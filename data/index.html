@@ -20,7 +20,11 @@
                 <button class="minimal" onclick="selectPattern(-1)">Pen</button>
                 <button class="minimal" onclick="selectPattern(0)">Glider</button>
                 <button class="minimal" onclick="selectPattern(1)">Glider Gun</button>
-            </div>
+                <div style="width: 250px; text-align: center"><h2>Custom Brushes</h2></div>
+                <div id="customBrushes"></div>
+                <textarea id="rletext" style="width:250px; max-width: 250px; height: 100px;"></textarea>
+                <button class="minimal" onclick="parseRLE()">Parse RLE pattern</button>
+        </div>
         </div>
 
         <canvas id="patternDrawer" width="0" height="0"></canvas>

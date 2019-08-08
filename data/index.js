@@ -274,10 +274,24 @@ function decode(string) {
     let y = 0;
     let match, number;
     let width = 0, height = 0;
+    let name="";
+    let naming = false;
+    let firstletter = false;
+
     for (let i = 0; i < string.length; i++) {
         if (ignore) {
             if (string[i] === "\n") {
                 ignore = false
+                naming = false;
+            }
+            if(naming) {
+                name += string[i];
+            }
+            if(firstletter) {
+                if (string[i] === "N") {
+                    naming = true;
+                }
+                firstletter = false;
             }
             continue
         }
@@ -285,11 +299,13 @@ function decode(string) {
             case "#":
             case "x":
             case "!":
+                firstletter = true;
                 ignore = true;
                 continue;
             case "$":
                 x = 0;
-                y++;
+                y+=step;
+                step = 1;
                 height = y>height?y:height;
                 continue;
             case "b":
@@ -323,7 +339,27 @@ function decode(string) {
         let cell = cells[i];
         grid[cell[1]][cell[0]] = 1
     }
-    return grid
+    return [grid, name.trim()]
+}
+
+let customCounter = 1;
+
+function parseRLE() {
+    let rlestr = document.getElementById("rletext").value;
+    document.getElementById("rletext").value = "";
+    let res = decode(rlestr);
+    let decodedpattern = res[0];
+    let name = res[1];
+    if(decodedpattern.length === 1 && decodedpattern[0].length <= 1) {
+        return
+    }
+    console.log(decodedpattern);
+    patterns.push(decodedpattern);
+    if(name === "") {
+      name = "Custom brush #"+customCounter++;
+    }
+    let custombrushdiv = document.getElementById("customBrushes");
+    custombrushdiv.innerHTML+= `<button class="minimal" onclick="selectPattern(${patterns.length-1})">${name}</button>`;
 }
 
 setInterval(function () {
