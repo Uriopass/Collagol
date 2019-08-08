@@ -286,10 +286,10 @@ function sendClear() {
                 y: i
             });
             grid[i][j] = 0;
+            redrawCell(j, i, "")
         }
     }
     ws.send(JSON.stringify([tosend, todel]));
-    draw()
 }
 
 let patterncanvas = document.getElementById('patternDrawer');
