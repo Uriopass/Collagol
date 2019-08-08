@@ -1,19 +1,19 @@
 let ws;
-window.addEventListener("load", function(evt) {
+window.addEventListener("load", function (evt) {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
-    ws.onopen = function(evt) {
+    ws.onopen = function (evt) {
         console.log("OPEN");
     };
-    ws.onclose = function(evt) {
+    ws.onclose = function (evt) {
         console.log("CLOSE");
         ws = null;
     };
-    ws.onmessage = function(evt) {
-        if(!initOk)
+    ws.onmessage = function (evt) {
+        if (!initOk)
             return;
         receive(JSON.parse(evt.data));
     };
-    ws.onerror = function(evt) {
+    ws.onerror = function (evt) {
         console.log("ERROR: " + evt.data);
     };
 });
@@ -28,7 +28,7 @@ const getConnected = async () => {
     return await response.json();
 };
 
-userAction().then(data => init(data))
+userAction().then(data => init(data));
 
 
 let height = -1;
@@ -38,21 +38,131 @@ let initOk = false;
 let cellSize = -1;
 let lastGrid;
 let canvas = document.getElementById('gridContainer');
+let patternWidth = 0;
+let patternHeight = 0;
+
 
 patterns = [
-[[1, 1, 1],
- [1, 0, 0],
- [0, 1, 0]],
-[   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-]];
+    [
+        [1, 1, 1],
+        [1, 0, 0],
+        [0, 1, 0]
+    ],
+    [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ],
+    [
+        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0]
+    ],
+    [
+        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+    ],
+    [
+        [-1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1],
+    ]
+];
 
 
 function init(config) {
@@ -60,11 +170,11 @@ function init(config) {
     width = config.width;
     cellSize = config.cellSize;
 
-    canvas.width = width*cellSize;
-    canvas.height = height*cellSize;
-    canvas.style.width = width*cellSize+"px";
-    canvas.style.height = height*cellSize+"px";
-    document.getElementById("game").style.width = (width*cellSize+300)+"px";
+    canvas.width = width * cellSize;
+    canvas.height = height * cellSize;
+    canvas.style.width = width * cellSize + "px";
+    canvas.style.height = height * cellSize + "px";
+    document.getElementById("game").style.width = (width * cellSize + 300) + "px";
 
     console.log(config);
 
@@ -73,8 +183,13 @@ function init(config) {
     for (let i = 0; i < height; i++) {
         grid[i] = new Array(width);
         lastGrid[i] = new Array(width);
+        for (let j = 0; j < height; j++) {
+            grid[i][j] = 0;
+            lastGrid[i][j] = -5;
+        }
     }
     selectPattern(-1);
+    draw();
     initOk = true;
 }
 
@@ -83,7 +198,7 @@ function receive(obj) {
         for (let j = 0; j < width; j++) {
             lastGrid[i][j] = grid[i][j];
             let val = obj[i][j];
-            if (grid[i][j] !== 2) {
+            if (grid[i][j] < 2) {
                 grid[i][j] = val;
             }
         }
@@ -98,6 +213,9 @@ function resetGrids() {
             if (grid[i][j] === 2) {
                 grid[i][j] = 0;
                 redrawCell(j, i);
+            } else if (grid[i][j] === 3) {
+                grid[i][j] = 0;
+                redrawCell(j, i);
             }
         }
     }
@@ -106,24 +224,36 @@ function resetGrids() {
 // clear the grid
 function sendHandler() {
     let tosend = [];
+    let todel = [];
+
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
-                tosend.push({x: j, y: i});
+                tosend.push({
+                    x: j,
+                    y: i
+                });
                 grid[i][j] = 1;
+            }
+            if (grid[i][j] === 3) {
+                todel.push({
+                    x: j,
+                    y: i
+                });
+                grid[i][j] = 0;
             }
         }
     }
-    ws.send(JSON.stringify(tosend));
+    ws.send(JSON.stringify([tosend, todel]));
     draw()
 }
 
 
 let patterncanvas = document.getElementById('patternDrawer');
 
-document.onmousemove = function(e) {
-    patterncanvas.style.left = e.pageX+"px";
-    patterncanvas.style.top = e.pageY+"px";
+document.onmousemove = function (e) {
+    patterncanvas.style.left = (e.pageX - Math.floor(patterncanvas.width / 2)) + "px";
+    patterncanvas.style.top = (e.pageY -  Math.floor(patterncanvas.height/ 2)) + "px";
 };
 
 let patterncontext = document.getElementById('patternDrawer').getContext('2d');
@@ -132,7 +262,7 @@ let patternSelectedId = -1;
 function selectPattern(id) {
     patterncontext.clearRect(0, 0, 800, 800);
     patternSelectedId = id;
-    if(id < 0) {
+    if (id < 0) {
         patterncanvas.width = 0;
         patterncanvas.height = 0;
         return;
@@ -141,13 +271,15 @@ function selectPattern(id) {
     let pattern = patterns[id];
     patterncanvas.width = pattern[0].length * cellSize;
     patterncanvas.height = pattern.length * cellSize;
-    for(let y = 0 ; y < pattern.length ; y++) {
-        for(let x = 0 ; x < pattern[y].length ; x++) {
+    for (let y = 0; y < pattern.length; y++) {
+        for (let x = 0; x < pattern[y].length; x++) {
             patterncontext.beginPath();
             patterncontext.rect(x * cellSize, y * cellSize, cellSize, cellSize);
             patterncontext.fillStyle = 'transparent';
-            if(pattern[y][x] === 1) {
+            if (pattern[y][x] === 1) {
                 patterncontext.fillStyle = 'violet';
+            } else if (pattern[y][x] === -1) {
+                patterncontext.fillStyle = 'red';
             }
             patterncontext.fill();
         }
@@ -155,18 +287,21 @@ function selectPattern(id) {
 }
 
 function applyPattern(pos_x, pos_y) {
-    if(patternSelectedId === -1)
+    if (patternSelectedId === -1)
         return;
     let pattern = patterns[patternSelectedId];
-    for(let y = 0 ; y < pattern.length ; y++) {
-        for(let x = 0 ; x < pattern[y].length ; x++) {
-            let X = x+pos_x;
-            let Y = y+pos_y;
-            if(X < 0 || X >= width || Y < 0 || Y >= height) {
+    for (let y = 0; y < pattern.length; y++) {
+        for (let x = 0; x < pattern[y].length; x++) {
+            let X = x + pos_x;
+            let Y = y + pos_y;
+            if (X < 0 || X >= width || Y < 0 || Y >= height) {
                 continue;
             }
             if (pattern[y][x] === 1) {
                 grid[Y][X] = 2;
+            }
+            if (pattern[y][x] === -1) {
+                grid[Y][X] = 3;
             }
         }
     }
@@ -187,22 +322,24 @@ function onCanvasOver(e) {
     let pos = getMousePos(canvas, e);
     let x = Math.floor(pos.x / cellSize);
     let y = Math.floor(pos.y / cellSize);
-    redrawCell(lastpos.x, lastpos.y, "")
+    redrawCell(lastpos.x, lastpos.y, "");
     lastpos = {
         x: x,
         y: y
     };
-    redrawCell(x, y, "black")
+    redrawCell(x, y, "black");
 
-    if(e.type === "mousedown" && patternSelectedId !== -1) {
-        applyPattern(x, y);
+    let isclick = e.buttons === 1 || e.buttons === 3;
+
+    if ((e.type === "mousedown" || (isclick && patternSelectedId === 4)) && patternSelectedId !== -1) {
+        applyPattern(x - Math.floor(patterncanvas.width/2/cellSize), y - Math.floor(patterncanvas.height/2/cellSize));
         return
     }
-    if(patternSelectedId !== -1) {
+    if (patternSelectedId !== -1) {
         return
     }
 
-    if (!(e.buttons === 1 || e.buttons === 3 || e.type === "mousedown")) {
+    if (!(isclick || e.type === "mousedown")) {
         return
     }
     let val = grid[y][x];
@@ -222,7 +359,9 @@ function redrawCell(x, y, color) {
 
     if (color === "") {
         let cell = grid[y][x];
-        if (cell === 2) {
+        if (cell === 3) {
+            color = 'red';
+        } else if (cell === 2) {
             color = 'violet';
         } else if (cell === 1) {
             color = 'cadetblue';
@@ -244,8 +383,8 @@ function getMousePos(canvas, evt) {
 }
 
 function draw() {
-    for (y = 0 ; y < height ; y++) {
-        for (x = 0 ; x < width ; x++) {
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
             let cell = grid[y][x];
             if (cell === lastGrid[y][x]) {
                 continue
@@ -258,6 +397,8 @@ function draw() {
                 context.fillStyle = 'cadetblue';
             } else if (cell === 2) {
                 context.fillStyle = 'violet';
+            } else if (cell === 3) {
+                context.fillStyle = 'red';
             } else {
                 context.fillStyle = 'white';
             }
@@ -273,21 +414,22 @@ function decode(string) {
     let x = 0;
     let y = 0;
     let match, number;
-    let width = 0, height = 0;
-    let name="";
+    let width = 0,
+        height = 0;
+    let name = "";
     let naming = false;
     let firstletter = false;
 
     for (let i = 0; i < string.length; i++) {
         if (ignore) {
             if (string[i] === "\n") {
-                ignore = false
+                ignore = false;
                 naming = false;
             }
-            if(naming) {
+            if (naming) {
                 name += string[i];
             }
-            if(firstletter) {
+            if (firstletter) {
                 if (string[i] === "N") {
                     naming = true;
                 }
@@ -304,9 +446,9 @@ function decode(string) {
                 continue;
             case "$":
                 x = 0;
-                y+=step;
+                y += step;
                 step = 1;
-                height = y>height?y:height;
+                height = y > height ? y : height;
                 continue;
             case "b":
                 x += step;
@@ -315,7 +457,7 @@ function decode(string) {
             case "o":
                 for (let j = 0; j < step; j++) {
                     cells.push([x++, y]);
-                    width = x>width?x:width;
+                    width = x > width ? x : width;
                 }
                 step = 1;
                 continue
@@ -328,14 +470,14 @@ function decode(string) {
         }
     }
 
-    let grid = new Array(height+1);
-    for(let i = 0 ; i < grid.length ; i++) {
+    let grid = new Array(height + 1);
+    for (let i = 0; i < grid.length; i++) {
         grid[i] = new Array(width);
-        for(let j = 0 ; j < grid[i].length ; j++) {
+        for (let j = 0; j < grid[i].length; j++) {
             grid[i][j] = 0;
         }
     }
-    for(let i = 0 ; i < cells.length ; i++) {
+    for (let i = 0; i < cells.length; i++) {
         let cell = cells[i];
         grid[cell[1]][cell[0]] = 1
     }
@@ -350,20 +492,20 @@ function parseRLE() {
     let res = decode(rlestr);
     let decodedpattern = res[0];
     let name = res[1];
-    if(decodedpattern.length === 1 && decodedpattern[0].length <= 1) {
+    if (decodedpattern.length === 1 && decodedpattern[0].length <= 1) {
         return
     }
     console.log(decodedpattern);
     patterns.push(decodedpattern);
-    if(name === "") {
-      name = "Custom brush #"+customCounter++;
+    if (name === "") {
+        name = "Custom brush #" + customCounter++;
     }
     let custombrushdiv = document.getElementById("customBrushes");
-    custombrushdiv.innerHTML+= `<button class="minimal" onclick="selectPattern(${patterns.length-1})">${name}</button>`;
+    custombrushdiv.innerHTML += `<button class="minimal" onclick="selectPattern(${patterns.length - 1})">${name}</button>`;
 }
 
 setInterval(function () {
-    getConnected().then(function(data) {
+    getConnected().then(function (data) {
         document.getElementById("connectedN").innerHTML = data;
 
     });

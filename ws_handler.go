@@ -46,7 +46,7 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 
 		go func() {
 			for {
-				var p []point
+				var p [][]point
 				err := c.ReadJSON(&p)
 				if err != nil {
 					log.Println("read:", err)

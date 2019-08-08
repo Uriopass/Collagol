@@ -10,7 +10,7 @@ type subType struct {
 type golState struct {
 	grid          [][]int
 	width, height int
-	activateCell  chan []point
+	activateCell  chan [][]point
 	updates       map[int]chan [][]int
 	unsub         chan int
 	sub           chan subType
@@ -21,7 +21,7 @@ func newGolState() *golState {
 		grid:         make([][]int, globalConf.Height),
 		width:        globalConf.Width,
 		height:       globalConf.Height,
-		activateCell: make(chan []point, 1000),
+		activateCell: make(chan [][]point, 1000),
 		unsub:        make(chan int, 1000),
 		sub:          make(chan subType, 1000),
 		updates:      make(map[int]chan [][]int),
@@ -87,11 +87,18 @@ func (gs *golState) updateLoop() {
 				s.c <- lastGrid
 			}
 		case pL := <-gs.activateCell:
-			for _, p := range pL {
+			for _, p := range pL[0] {
 				x := p.X
 				y := p.Y
 				if x >= 0 && x < gs.width && y >= 0 && y < gs.height {
 					gs.grid[y][x] = 1
+				}
+			}
+			for _, p := range pL[1] {
+				x := p.X
+				y := p.Y
+				if x >= 0 && x < gs.width && y >= 0 && y < gs.height {
+					gs.grid[y][x] = 0
 				}
 			}
 		}
