@@ -298,7 +298,7 @@ function decode(string) {
                 continue;
             case "o":
                 for (let j = 0; j < step; j++) {
-                    cells.push(x++, y);
+                    cells.push([x++, y]);
                     width = x>width?x:width;
                 }
                 step = 1;
@@ -312,15 +312,17 @@ function decode(string) {
         }
     }
 
-    grid = new Array(height);
-    for(let i = 0 ; i < height ; i++) {
+    let grid = new Array(height+1);
+    for(let i = 0 ; i < grid.length ; i++) {
         grid[i] = new Array(width);
+        for(let j = 0 ; j < grid[i].length ; j++) {
+            grid[i][j] = 0;
+        }
     }
     for(let i = 0 ; i < cells.length ; i++) {
         let cell = cells[i];
         grid[cell[1]][cell[0]] = 1
     }
-
     return grid
 }
 
