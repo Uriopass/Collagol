@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -50,9 +51,15 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 			}()
 			for {
 				var p [][]point
-				err := c.ReadJSON(&p)
+				_, b, err := c.ReadMessage()
 				if err != nil {
 					log.Println("read:", err)
+					break
+				}
+				err = json.Unmarshal(b, &p)
+				if err != nil {
+					log.Println("json err:", err)
+					log.Println("with mess: ", b)
 					break
 				}
 				state.activateCell <- p
