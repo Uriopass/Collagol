@@ -1,1 +1,1 @@
-go build && sudo nohup ./Collagol </dev/null &
+go build && sudo nohup ./Collagol > nohup.out </dev/null & 
