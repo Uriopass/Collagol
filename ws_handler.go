@@ -42,7 +42,6 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 
 		defer func() {
 			_ = c.Close()
-			state.unSubscribe(int(id))
 		}()
 
 		go func() {
