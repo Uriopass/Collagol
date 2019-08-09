@@ -127,10 +127,10 @@ let canvas = document.getElementById('gridContainer');
 let patternWidth = 0;
 let patternHeight = 0;
 
-let bgcolor = 'black';
-let fgcolor = 'white';
-let activatecolor = 'violet';
-let erasecolor = 'red';
+let bgcolor = [0, 0, 0];
+let fgcolor = [255, 255, 255];
+let activatecolor = [0xEE, 0x82, 0xEE]; // violet
+let erasecolor = [255, 0, 0];
 
 patterns = [
     [[1]],
@@ -397,9 +397,9 @@ function selectPattern(id) {
             patterncontext.rect(x * cellSize, y * cellSize, cellSize, cellSize);
             patterncontext.fillStyle = 'transparent';
             if (pattern[y][x] === 1) {
-                patterncontext.fillStyle = activatecolor;
+                patterncontext.fillStyle = `rgb(${activatecolor[0]}, ${activatecolor[1]}, ${activatecolor[2]}`
             } else if (pattern[y][x] === -1) {
-                patterncontext.fillStyle = erasecolor;
+                patterncontext.fillStyle = `rgb(${erasecolor[0]}, ${erasecolor[1]}, ${erasecolor[2]}`;
             }
             patterncontext.fill();
         }
@@ -470,7 +470,7 @@ function redrawCell(x, y, color) {
             color = bgcolor;
         }
     }
-    context.fillStyle = color;
+    context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]}`;
     context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
 }
@@ -484,25 +484,35 @@ function getMousePos(canvas, evt) {
 }
 
 function draw() {
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            let cell = grid[y][x];
-            if (cell === lastGrid[y][x]) {
-                continue
-            }
+    let image = context.createImageData(width*cellSize, height*cellSize);
+    let data = image.data;
 
-            if (cell === 1) {
-                context.fillStyle = fgcolor;
-            } else if (cell === 2) {
-                context.fillStyle = activatecolor;
-            } else if (cell === 3) {
-                context.fillStyle = erasecolor;
-            } else {
-                context.fillStyle = bgcolor;
-            }
-            context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+    let x = 0, y = 0;
+    let color;
+    let ind = 0;
+    for(let i = 0 ; i < data.length ; i+=4, ind++) {
+        let lul = ~~(ind/cellSize);
+        x = lul%width;
+        y = ~~(lul/(width*cellSize));
+
+        let cell = grid[y][x];
+        if (cell === 1) {
+            color = fgcolor;
+        } else if (cell === 2) {
+            color = activatecolor;
+        } else if (cell === 3) {
+            color = erasecolor;
+        } else {
+            color = bgcolor;
         }
+
+        data[i]     = color[0]; // rouge
+        data[i + 1] = color[1]; // vert
+        data[i + 2] = color[2]; // bleu
+        data[i + 3] = 255;
     }
+
+    context.putImageData(image, 0, 0);
 }
 
 function decode(string) {
