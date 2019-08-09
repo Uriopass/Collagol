@@ -14,3 +14,5 @@ Collagol stands for Collaborative Game of Life is a persistent game of life univ
  * Bigger eraser
  * Identify which cells was placed by player
  * Add send button
+ * connected count IPs
+ * optimize draw using Uint32 

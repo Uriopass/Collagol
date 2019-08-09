@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 	"github.com/itchio/lzma"
@@ -47,20 +48,30 @@ func compress(tt []byte) []byte {
 	return b.Bytes()
 }
 
-func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
+func wsHandler(state *golState, banner *banner) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		IP := strings.Split(r.RemoteAddr, ":")
+		IP = IP[:len(IP)-1]
+
+		remoteaddr := strings.Join(IP, ":")
+		if banner.isConnected(remoteaddr) {
+			http.Error(w, "Ip already connected", 401)
+			return
+		}
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Print("upgrade:", err)
 			return
 		}
-		log.Println("Upgraded conn from ", r.RemoteAddr)
+		log.Println("Upgraded conn from ", remoteaddr)
+		banner.connect(remoteaddr)
 
 		id := counter.Inc()
 		out := state.subscribe(int(id))
 
 		c.SetCloseHandler(func(code int, text string) error {
 			log.Println("Unsubscribing")
+			banner.disconnect(remoteaddr)
 			state.unSubscribe(int(id))
 			return nil
 		})

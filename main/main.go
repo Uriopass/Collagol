@@ -20,10 +20,12 @@ func main() {
 	hub := messaging.NewHub()
 	go hub.Run()
 
+	banner := initBanner()
+
 	log.SetFlags(0)
 
 	// websocket
-	http.HandleFunc("/echo", wsHandler(gol))
+	http.HandleFunc("/echo", wsHandler(gol, banner))
 	http.HandleFunc("/message", messaging.WsHandler(hub))
 
 	// http info
