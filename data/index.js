@@ -632,7 +632,7 @@ function saveRLEs() {
 }
 
 function loadRLEs() {
-    return JSON.parse(Cookies.get("brushes", []));
+    return JSON.parse(Cookies.get("brushes", "[]"));
 }
 
 function flipPatternX(id) {
