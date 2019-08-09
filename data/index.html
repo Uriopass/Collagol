@@ -23,13 +23,13 @@
                 <button class="minimal" onclick="sendHandler()">Send pattern</button>
                 <button class="minimal" onclick="clearButtonHandler()">Clear pattern</button>
                 <div style="width: 250px; text-align: center"><h2>Brushes</h2></div>
-                <button class="minimal" onclick="selectPattern(-1)">✏️ Pen</button>
-                <button class="minimal" onclick="selectPattern(4)">🔴 Eraser</button>
-                <button class="minimal" onclick="selectPattern(0)">Glider</button>
-                <button class="minimal" onclick="selectPattern(1)">Glider Gun</button>
-                <button class="minimal" onclick="selectPattern(2)">Pulsar</button>
-                <button class="minimal" onclick="selectPattern(3)">Sir Robin</button>
-                <button class="minimal" onclick="selectPattern(5)">MWSS Gun</button>
+                <button class="minimal" onclick="selectPattern(0)">✏️ Pen</button>
+                <button class="minimal" onclick="selectPattern(1)">🔴 Eraser</button>
+                <button class="minimal" onclick="selectPattern(2)">Glider</button>
+                <button class="minimal" onclick="selectPattern(3)">Glider Gun</button>
+                <button class="minimal" onclick="selectPattern(4)">Pulsar</button>
+                <button class="minimal" onclick="selectPattern(5)">Sir Robin</button>
+                <button class="minimal" onclick="selectPattern(6)">MWSS Gun</button>
                 <div style="width: 250px; text-align: center"><h2>Custom Brushes</h2></div>
                 <div id="customBrushes"></div>
                 <textarea id="rletext" style="width:250px; max-width: 250px; height: 100px;"></textarea>
@@ -43,6 +43,7 @@
 
         <canvas id="patternDrawer" width="0" height="0"></canvas>
         <script src="data/Cookies.js"></script>
+        <script src="data/lzma_worker.js"></script>
         <script src="data/index.js?random={{.R2}}"></script>
     </body>
 </html>
