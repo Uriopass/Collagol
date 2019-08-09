@@ -37,14 +37,14 @@ func newGolState(config config) *golState {
 	return &gs
 }
 
-func (gs *golState) updateCase(i, j, neighs int, tmpGrid grid) {
+func (gs *golState) updateCase(x, y, neighs int, tmpGrid grid) {
 	switch neighs {
 	case 3:
-		tmpGrid[i][j] = 1
+		tmpGrid[y][x] = 1
 	case 2:
-		tmpGrid[i][j] = gs.grid[i][j]
+		tmpGrid[y][x] = gs.grid[y][x]
 	default:
-		tmpGrid[i][j] = 0
+		tmpGrid[y][x] = 0
 	}
 }
 
@@ -55,24 +55,24 @@ func (gs *golState) nextTimeStep() grid {
 	}
 
 	// Center
-	for i := 1; i < gs.height-1; i++ {
-		for j := 1; j < gs.width-1; j++ {
-			neighs := gs.fastNeighs(j, i)
-			gs.updateCase(i, j, neighs, tmpGrid)
+	for y := 1; y < gs.height-1; y++ {
+		for x := 1; x < gs.width-1; x++ {
+			neighs := gs.fastNeighs(x, y)
+			gs.updateCase(x, y, neighs, tmpGrid)
 		}
 	}
 
 	// Bounds
-	for i := 1; i < gs.height-1; i++ {
-		for j := 0; j < gs.width; j += gs.width - 1 {
-			neighs := gs.countNeighsTorus(j, i)
-			gs.updateCase(i, j, neighs, tmpGrid)
+	for y := 0; y < gs.height; y++ {
+		for x := 0; x < gs.width; x += gs.width - 1 {
+			neighs := gs.countNeighsTorus(x, y)
+			gs.updateCase(x, y, neighs, tmpGrid)
 		}
 	}
-	for i := 0; i < gs.height; i += gs.height - 1 {
-		for j := 1; j < gs.width-1; j++ {
-			neighs := gs.countNeighsTorus(j, i)
-			gs.updateCase(i, j, neighs, tmpGrid)
+	for y := 0; y < gs.height; y += gs.height - 1 {
+		for x := 0; x < gs.width; x++ {
+			neighs := gs.countNeighsTorus(x, y)
+			gs.updateCase(x, y, neighs, tmpGrid)
 		}
 	}
 
