@@ -57,6 +57,7 @@ function initRLEs() {
     for(let i = 0 ; i < rles.length ; i++) {
         addRLE(rles[i])
     }
+    saveRLEs()
 }
 
 function initConfig(config) {
@@ -632,7 +633,11 @@ function saveRLEs() {
 }
 
 function loadRLEs() {
-    return JSON.parse(Cookies.get("brushes", "[]"));
+    let gotten = Cookies.get("brushes")
+    if(gotten === undefined) {
+        return []
+    }
+    return JSON.parse(gotten);
 }
 
 function flipPatternX(id) {
