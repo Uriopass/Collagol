@@ -14,15 +14,9 @@ function initws() {
     };
     ws.onmessage = function (evt) {
         if (!initOk)
-            return;
-        let reader = new FileReader();
-        reader.readAsArrayBuffer(evt.data);
-        reader.addEventListener("loadend", function(e)
-        {
-            let buffer = new Uint8Array(e.target.result);
-            let decompressed = LZMA.decompress(buffer);
-            receive(JSON.parse(decompressed));
-        });
+            return
+
+        receive(JSON.parse(evt.data));
     };
     ws.onerror = function (evt) {
         console.log("ERROR: " + evt.data);

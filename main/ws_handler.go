@@ -95,8 +95,8 @@ func wsHandler(state *golState) func(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println("json err: ", err)
 			}
-			compressed := compress(payload)
-			err = c.WriteMessage(websocket.BinaryMessage, compressed)
+			//			compressed := compress(payload)
+			err = c.WriteMessage(websocket.TextMessage, payload)
 			if err != nil {
 				log.Println("Write err: ", err)
 				break
