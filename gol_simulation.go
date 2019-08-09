@@ -57,7 +57,7 @@ func (gs *golState) nextTimeStep() grid {
 	// Center
 	for i := 1; i < gs.height-1; i++ {
 		for j := 1; j < gs.width-1; j++ {
-			neighs := gs.fastNeighs(i, j)
+			neighs := gs.fastNeighs(j, i)
 			gs.updateCase(i, j, neighs, tmpGrid)
 		}
 	}
@@ -65,13 +65,13 @@ func (gs *golState) nextTimeStep() grid {
 	// Bounds
 	for i := 1; i < gs.height-1; i++ {
 		for j := 0; j < gs.width; j += gs.width - 1 {
-			neighs := gs.countNeighsTorus(i, j)
+			neighs := gs.countNeighsTorus(j, i)
 			gs.updateCase(i, j, neighs, tmpGrid)
 		}
 	}
 	for i := 0; i < gs.height; i += gs.height - 1 {
 		for j := 1; j < gs.width-1; j++ {
-			neighs := gs.countNeighsTorus(i, j)
+			neighs := gs.countNeighsTorus(j, i)
 			gs.updateCase(i, j, neighs, tmpGrid)
 		}
 	}
