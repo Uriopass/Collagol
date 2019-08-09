@@ -102,12 +102,8 @@ func wsHandler(state *golState, banner *banner) func(w http.ResponseWriter, r *h
 		}()
 
 		for newCells := range out {
-			payload, err := json.Marshal(newCells)
-			if err != nil {
-				log.Println("json err: ", err)
-			}
 			//			compressed := compress(payload)
-			err = c.WriteMessage(websocket.TextMessage, payload)
+			err = c.WriteMessage(websocket.TextMessage, []byte(newCells))
 			if err != nil {
 				log.Println("Write err: ", err)
 				break

@@ -2,21 +2,40 @@ package main
 
 import (
 	"log"
+	"strings"
 	"time"
 )
 
 type grid [][]int
 
+type encodedGrid string
+
+func (g grid) encode() encodedGrid {
+	encoded := strings.Builder{}
+
+	for y := 0 ; y < len(g) ; y++ {
+		for x := 0 ; x < len(g[y]) ; x++ {
+			if g[y][x] == 1 {
+				encoded.WriteByte('1')
+			} else {
+				encoded.WriteByte('0')
+			}
+		}
+	}
+
+	return encodedGrid(encoded.String())
+}
+
 type subType struct {
 	id int
-	c  chan grid
+	c  chan encodedGrid
 }
 
 type golState struct {
 	grid          grid
 	width, height int
 	activateCell  chan [][]point
-	updates       map[int]chan grid
+	updates       map[int]chan encodedGrid
 	unsub         chan int
 	sub           chan subType
 }
@@ -29,7 +48,7 @@ func newGolState(config config) *golState {
 		activateCell: make(chan [][]point, 1000),
 		unsub:        make(chan int, 1000),
 		sub:          make(chan subType, 1000),
-		updates:      make(map[int]chan grid),
+		updates:      make(map[int]chan encodedGrid),
 	}
 	for i := 0; i < gs.height; i++ {
 		gs.grid[i] = make([]int, gs.width)
@@ -82,8 +101,8 @@ func (gs *golState) nextTimeStep() grid {
 	return tmpGrid
 }
 
-func (gs *golState) subscribe(id int) <-chan grid {
-	ch := make(chan grid, 10)
+func (gs *golState) subscribe(id int) <-chan encodedGrid {
+	ch := make(chan encodedGrid, 10)
 	gs.sub <- subType{id, ch}
 	return ch
 }
@@ -95,14 +114,16 @@ func (gs *golState) unSubscribe(id int) {
 func (gs *golState) updateLoop() {
 	ticker := time.Tick(200 * time.Millisecond)
 
-	var lastGrid grid
+	var lastEncoded encodedGrid
 	for iter := 0; ; iter++ {
 		select {
 		case <-ticker:
-			lastGrid = gs.nextTimeStep()
+			lastGrid := gs.nextTimeStep()
+			lastEncoded = lastGrid.encode()
+
 			for id, ch := range gs.updates {
 				select {
-				case ch <- lastGrid:
+				case ch <- lastEncoded:
 				default:
 					log.Println("Channel full, dropping connection")
 					close(ch)
@@ -116,8 +137,8 @@ func (gs *golState) updateLoop() {
 			}
 		case s := <-gs.sub:
 			gs.updates[s.id] = s.c
-			if lastGrid != nil {
-				s.c <- lastGrid
+			if lastEncoded != "" {
+				s.c <- lastEncoded
 			}
 		case pL := <-gs.activateCell:
 			for _, p := range pL[0] {

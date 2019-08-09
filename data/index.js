@@ -17,7 +17,7 @@ function initws() {
         if (!initOk)
             return;
 
-        receive(JSON.parse(evt.data));
+        receive(evt.data);
     };
     ws.onerror = function (evt) {
         document.getElementById("errorMessage").innerText = "Couldn't connect to the server. Maybe you are already running another tab or your connection dropped ?"
@@ -309,9 +309,10 @@ function receive(obj) {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             lastGrid[i][j] = grid[i][j];
-            let val = obj[i][j];
+            let val = obj.charAt(i*width+j);
+
             if (grid[i][j] < 2) {
-                grid[i][j] = val;
+                grid[i][j] = val === '1' ? 1 : 0;
             }
         }
     }
