@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/Uriopass/Collagol/messaging"
 	"html/template"
 	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/Uriopass/Collagol/messaging"
 )
 
 func main() {
