@@ -1,1 +1,1 @@
-go build -o collagol ./main/
+go build -o bin/collagol ./main/
