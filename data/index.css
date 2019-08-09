@@ -69,7 +69,11 @@ a {
     height: 20px;
 }
 
-.messageinput input::placeholder {
+input::placeholder {
+    font-style: italic;
+}
+
+textarea::placeholder {
     font-style: italic;
 }
 
