@@ -3,21 +3,21 @@ let messageWs;
 
 function initws() {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
-    ws.onopen = function(evt) {
+    ws.onopen = function (evt) {
         console.log("OPEN");
     };
-    ws.onclose = function(evt) {
+    ws.onclose = function (evt) {
         console.log("CLOSE retrying...");
-        setTimeout(function() {
+        setTimeout(function () {
             initws()
         }, 1000);
     };
-    ws.onmessage = function(evt) {
+    ws.onmessage = function (evt) {
         if (!initOk)
             return;
         receive(JSON.parse(evt.data));
     };
-    ws.onerror = function(evt) {
+    ws.onerror = function (evt) {
         console.log("ERROR: " + evt.data);
     };
 }
@@ -25,35 +25,47 @@ function initws() {
 function initChatroom() {
     let messageDiv = document.getElementById("messages");
     messageWs = new WebSocket("ws://" + document.location.host + "/message");
-    messageWs.onopen = function(evt) {
+    messageWs.onopen = function (evt) {
         console.log("OPEN");
         messageDiv.innerHTML = "";
     };
-    messageWs.onclose = function(evt) {
+    messageWs.onclose = function (evt) {
         console.log("Lost connection to chat retrying...");
-        setTimeout(function() {
+        setTimeout(function () {
             initChatroom()
         }, 1000);
     };
-    messageWs.onmessage = function(evt) {
-        messageDiv.innerHTML +=`<li class="message">${evt.data}</li>`
+    messageWs.onmessage = function (evt) {
+        messageDiv.innerHTML += `<li class="message">${evt.data}</li>`;
         messageDiv.scrollTop = messageDiv.scrollHeight;
     };
-    messageWs.onerror = function(evt) {
+    messageWs.onerror = function (evt) {
         console.log("ERROR: " + evt.data);
     };
+    document.getElementById("usernameText").value = Cookies.get("username", " ");
 }
 
-window.addEventListener("load", function(evt) {
+function initRLEs() {
+    let rles = loadRLEs();
+    for(let i = 0 ; i < rles.length ; i++) {
+        addRLE(rles[i])
+    }
+}
+
+window.addEventListener("load", function (evt) {
     initChatroom();
     initws();
+    initRLEs();
 });
 
 function sendMessage() {
-    let val = document.getElementById("messageText").value;
+    let val = document.getElementById("messageText").value.trim();
     let username = document.getElementById("usernameText").value;
     document.getElementById("messageText").value = "";
-    messageWs.send(`${username}: ${val}`);
+    if (val.length > 0) {
+        messageWs.send(`${username}: ${val}`);
+    }
+    Cookies.set("username", username)
 }
 
 const userAction = async () => {
@@ -356,7 +368,7 @@ function sendClear() {
 
 let patterncanvas = document.getElementById('patternDrawer');
 
-document.onmousemove = function(e) {
+document.onmousemove = function (e) {
     patterncanvas.style.left = (e.pageX - Math.floor(patterncanvas.width / 2)) + "px";
     patterncanvas.style.top = (e.pageY - Math.floor(patterncanvas.height / 2)) + "px";
 };
@@ -417,7 +429,7 @@ canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
 canvas.onmouseup = sendDeletion;
 
-canvas.onmouseleave = function(e) {
+canvas.onmouseleave = function (e) {
     let pos = getMousePos(canvas, e);
     let x = Math.floor(pos.x / cellSize);
     let y = Math.floor(pos.y / cellSize);
@@ -595,9 +607,21 @@ function decode(string) {
 
 let customCounter = 1;
 
-function parseRLE() {
+let brushes = [];
+
+function parseRLEClickHandler() {
     let rlestr = document.getElementById("rletext").value;
     document.getElementById("rletext").value = "";
+    addRLE(rlestr)
+    saveRLEs()
+    selectPattern(patterns.length-1)
+}
+
+function addRLE(rlestr, temporary) {
+    if (temporary === undefined) {
+        temporary = false;
+    }
+
     let res = decode(rlestr);
     let decodedpattern = res[0];
     let name = res[1];
@@ -605,15 +629,45 @@ function parseRLE() {
         return
     }
     patterns.push(decodedpattern);
-    if (name === "") {
-        name = "Custom brush #" + customCounter++;
+
+    if(temporary) {
+        selectPattern(patterns.length-1)
+        return
     }
+
+    let brush_id = brushes.length;
+    brushes.push(rlestr);
+
+    if (name === "") {
+        name = `Custom brush #${customCounter}`;
+        customCounter++
+    }
+
     let custombrushdiv = document.getElementById("customBrushes");
-    custombrushdiv.innerHTML += `<button class="minimal" onclick="selectPattern(${patterns.length - 1})">${name}</button>`;
+    custombrushdiv.innerHTML += `
+<div class="brush" id="brush_${brush_id}">
+    <button class="minimal" onclick="selectPattern(${patterns.length - 1})">${name}</button>
+    <div class="deleteButton" onclick="removeBrush(${brush_id})"></div>
+</div>`;
 }
 
-setInterval(function() {
-    getConnected().then(function(data) {
+function saveRLEs() {
+    Cookies.set("brushes", JSON.stringify(brushes));
+}
+
+function loadRLEs() {
+    return JSON.parse(Cookies.get("brushes", []));
+}
+
+
+function removeBrush(id) {
+    document.getElementById(`brush_${id}`).remove();
+    brushes[id] = "";
+    saveRLEs();
+}
+
+setInterval(function () {
+    getConnected().then(function (data) {
         document.getElementById("connectedN").innerHTML = data;
 
     });
