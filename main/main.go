@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/Uriopass/Collagol/messaging"
 	"html/template"
 	"log"
 	"math/rand"
@@ -15,13 +16,14 @@ func main() {
 	gol := newGolState(globalConf)
 	go gol.updateLoop()
 
-	hub := newHub()
-	go hub.run()
+	hub := messaging.NewHub()
+	go hub.Run()
 
 	log.SetFlags(0)
-	// websockets
+
+	// websocket
 	http.HandleFunc("/echo", wsHandler(gol))
-	http.HandleFunc("/message", messagingWs(hub))
+	http.HandleFunc("/message", messaging.WsHandler(hub))
 
 	// http info
 	http.HandleFunc("/config", func(writer http.ResponseWriter, request *http.Request) {

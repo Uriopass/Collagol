@@ -1,4 +1,4 @@
-package main
+package messaging
 
 import "log"
 
@@ -22,7 +22,7 @@ type Hub struct {
 	history []timeMessage
 }
 
-func newHub() *Hub {
+func NewHub() *Hub {
 	h := &Hub{
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
@@ -35,7 +35,7 @@ func newHub() *Hub {
 	return h
 }
 
-func (h *Hub) run() {
+func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:

@@ -1,4 +1,4 @@
-package main
+package messaging
 
 import (
 	"bytes"
@@ -111,8 +111,8 @@ func (c *Client) writePump() {
 	}
 }
 
-// messagingWs handles websocket requests from the peer.
-func messagingWs(hub *Hub) func(w http.ResponseWriter, r *http.Request) {
+// WsHandler handles websocket requests from the peer.
+func WsHandler(hub *Hub) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader2.Upgrade(w, r, nil)
 		if err != nil {
