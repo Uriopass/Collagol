@@ -3,6 +3,7 @@ let messageWs;
 
 function initws() {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
+
     ws.onopen = function (evt) {
         console.log("OPEN");
     };
@@ -19,7 +20,7 @@ function initws() {
         receive(JSON.parse(evt.data));
     };
     ws.onerror = function (evt) {
-        console.log("ERROR: " + evt.data);
+        document.getElementById("errorMessage").innerText = "Couldn't connect to the server. Maybe you are already running another tab or your connection dropped ?"
     };
 }
 
