@@ -5,10 +5,16 @@ function initws() {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
 
     ws.onopen = function (evt) {
+        document.getElementById("errorMessage").innerText = ""
         console.log("OPEN");
     };
     ws.onclose = function (evt) {
-        console.log("CLOSE retrying...");
+        console.log("CLOSE");
+	console.log(evt);
+	if(evt.code === 1001) {
+		return;
+	}
+	console.log("Retrying...");
         setTimeout(function () {
             initws()
         }, 1000);
@@ -20,7 +26,7 @@ function initws() {
         receive(evt.data);
     };
     ws.onerror = function (evt) {
-        document.getElementById("errorMessage").innerText = "Couldn't connect to the server. Maybe you are already running another tab or your connection dropped ?"
+        document.getElementById("errorMessage").innerText = "Couldn't connect to the server"
     };
 }
 

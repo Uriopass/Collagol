@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/itchio/lzma"
@@ -54,9 +55,8 @@ func wsHandler(state *golState, banner *banner) func(w http.ResponseWriter, r *h
 		IP = IP[:len(IP)-1]
 
 		remoteaddr := strings.Join(IP, ":")
-		if banner.isConnected(remoteaddr) {
-			http.Error(w, "Ip already connected", 401)
-			return
+		if v, connected := banner.isConnected(remoteaddr) ; connected {
+			state.unSubscribe(v)
 		}
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -64,10 +64,10 @@ func wsHandler(state *golState, banner *banner) func(w http.ResponseWriter, r *h
 			return
 		}
 		log.Println("Upgraded conn from ", remoteaddr)
-		banner.connect(remoteaddr)
 
 		id := counter.Inc()
 		out := state.subscribe(int(id))
+		banner.register(remoteaddr, int(id))
 
 		c.SetCloseHandler(func(code int, text string) error {
 			log.Println("Unsubscribing")
@@ -109,5 +109,6 @@ func wsHandler(state *golState, banner *banner) func(w http.ResponseWriter, r *h
 				break
 			}
 		}
+		c.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, ""), time.Now().Add(1 * time.Second))
 	}
 }

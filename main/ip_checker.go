@@ -5,19 +5,19 @@ import (
 )
 
 type banner struct {
-	IPs map[string]struct{}
+	IPs map[string]int
 	mu  sync.RWMutex
 }
 
 func initBanner() *banner {
 	return &banner{
-		IPs: make(map[string]struct{}),
+		IPs: make(map[string]int),
 	}
 }
 
-func (b *banner) connect(ip string) {
+func (b *banner) register(ip string, id int) {
 	b.mu.Lock()
-	b.IPs[ip] = struct{}{}
+	b.IPs[ip] = id
 	b.mu.Unlock()
 }
 
@@ -27,9 +27,9 @@ func (b *banner) disconnect(ip string) {
 	b.mu.Unlock()
 }
 
-func (b *banner) isConnected(ip string) bool {
+func (b *banner) isConnected(ip string) (int, bool) {
 	b.mu.RLock()
-	_, ok := b.IPs[ip]
+	v, ok := b.IPs[ip]
 	b.mu.RUnlock()
-	return ok
+	return v, ok
 }
