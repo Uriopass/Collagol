@@ -75,13 +75,10 @@ function initConfig(config) {
     console.log(config);
 
     grid = new Array(height);
-    lastGrid = new Array(height);
     for (let i = 0; i < height; i++) {
         grid[i] = new Array(width);
-        lastGrid[i] = new Array(width);
         for (let j = 0; j < height; j++) {
             grid[i][j] = 0;
-            lastGrid[i][j] = -5;
         }
     }
     selectPattern(0);
@@ -123,7 +120,6 @@ let width = -1;
 let grid;
 let initOk = false;
 let cellSize = -1;
-let lastGrid;
 let canvas = document.getElementById('gridContainer');
 let patternWidth = 0;
 let patternHeight = 0;
@@ -314,7 +310,6 @@ patterns = [
 function receive(obj) {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
-            lastGrid[i][j] = grid[i][j];
             let val = obj.charAt(i*width+j);
 
             if (grid[i][j] < 2) {
