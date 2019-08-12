@@ -2,6 +2,10 @@
 
 Collagol stands for Collaborative Game of Life is a persistent game of life universe.  
 
+## How it works
+
+The page is just a facade using Canvas in Javascript for the world that is updated using a Go backend.
+Front and back communicate through a websocket, each update sends the entire world to every connected user. 
 
 ## TODO List
 
