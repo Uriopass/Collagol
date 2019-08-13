@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-var result int
-
 func BenchmarkTimestep(t *testing.B) {
 	gs := newGolState(config{
 		Width:  1000,
@@ -18,8 +16,9 @@ func BenchmarkTimestep(t *testing.B) {
 	for i := 0; i < gs.height*gs.width; i++ {
 		tmpGrid[i] = rand.Int() % 2
 	}
-	for k := 0; k < t.N; k++ {
-		gs.nextTimeStep()
+	t.StartTimer()
+	for i := 0 ; i < t.N ; i++ {
+		gs.goForward(1)
 	}
-	result = gs.grid[0][0]
+	t.StopTimer()
 }
