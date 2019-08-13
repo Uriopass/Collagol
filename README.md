@@ -15,12 +15,13 @@ Front and back communicate through a websocket, each update sends the entire wor
  * Implement Hashlife
  * RLE Sharing
  * Temporary RLE
- * Bigger eraser
+ * ~Bigger eraser~
  * Identify which cells was placed by player
- * Add send button
+ * ~Add send button~
  * ~One IP at a time only~
  * ~Optimize draw using Uint32~
- * Redo CSS to support more resolutions
+ * ~Redo CSS to support more resolutions~
+ * ~Shortcuts for rotation and flipping~
  * Better mobile support 
  * Change /connected endpoint to WS
  
