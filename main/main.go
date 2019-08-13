@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -14,8 +15,10 @@ import (
 )
 
 func main() {
+	runtime.GOMAXPROCS(1)
 	if len(os.Args) > 1 && os.Args[1] == "test" {
 		runTests()
+		return
 	}
 	rand.Seed(time.Now().Unix())
 	golState := newGolState(globalConf)

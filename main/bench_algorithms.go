@@ -17,7 +17,7 @@ func BenchmarkFlat(gen int) {
 	for i := 0; i < gs.height*gs.width; i++ {
 		tmpGrid[i] = rand.Int() % 2
 	}
-	for i := 0 ; i < gen ; i++ {
+	for i := 0; i < gen; i++ {
 		t := time.Now()
 		gs.goForward(1)
 		diff := time.Now().Sub(t)
@@ -26,12 +26,12 @@ func BenchmarkFlat(gen int) {
 }
 
 func BenchmarkHash(gen int) {
-	lvl := uint(12)
+	lvl := uint8(12)
 
 	rand.Seed(0)
 	gs := RandomTree(lvl)
 
-	for i := 0 ; i < gen ; i++ {
+	for i := 0; i < gen; i++ {
 		t := time.Now()
 		gs = gs.NextGen()
 		diff := time.Now().Sub(t)
@@ -45,4 +45,3 @@ func runTests() {
 	//BenchmarkHash(10)
 	BenchmarkFlat(10)
 }
-
