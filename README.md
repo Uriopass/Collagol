@@ -4,24 +4,27 @@ Collagol stands for Collaborative Game of Life is a persistent game of life univ
 
 ## How it works
 
-The page is just a facade using Canvas in Javascript for the world that is updated using a Go backend.
+The page is just a facade using Canvas2D in Javascript for the world that is updated using a Go backend.
 Front and back communicate through a websocket, each update sends the entire world to every connected user. 
 
-## TODO List
+## TODO
 
- * Translation and scroll
- * Bigger world
- * Optimized networking
+Sorted by priority:
+ * Bigger world (requires hashlife and optimized networking)
  * Implement Hashlife
+ * Translation and scroll
+ * Optimized networking
+ * Better mobile support / responsive design
  * RLE Sharing
  * Temporary RLE
- * ~Bigger eraser~
  * Identify which cells was placed by player
- * ~Add send button~
+
+Done:
  * ~One IP at a time only~
- * ~Optimize draw using Uint32~
  * ~Redo CSS to support more resolutions~
  * ~Shortcuts for rotation and flipping~
- * Better mobile support 
+ * ~Bigger eraser~
+ * ~Add send button~
  * ~Change /connected endpoint to WS~
+ * ~Optimize draw using Uint32~
  
