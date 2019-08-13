@@ -572,9 +572,11 @@ function redrawCell(x, y, color) {
 
 function getMousePos(canvas, evt) {
     let rect = canvas.getBoundingClientRect();
+    let scaleX = canvas.width / rect.width;    // relationship bitmap vs. element for X
+    let scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
     return {
-        x: (evt.clientX - rect.left),
-        y: (evt.clientY - rect.top)
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY,
     };
 }
 
@@ -743,14 +745,31 @@ function loadRLEs() {
     return JSON.parse(gotten);
 }
 
+function flipPatternY(id) {
+    let pattern = patterns[id];
+    for (let y = 0; y < pattern.length/2; y++) {
+        let tmp = pattern[y];
+        pattern[y] = pattern[pattern.length-1-y];
+        pattern[pattern.length-1-y] = tmp;
+    }
+    selectPattern(id)
+}
+
 function flipPatternX(id) {
-    if (patternSelectedId !== -1) {
-
+    let pattern = patterns[id];
+    for(let y = 0 ; y < pattern.length ; y++) {
+        let len = pattern[y].length;
+        for (let x = 0; x < len / 2; x++) {
+            let tmp = pattern[y][x];
+            pattern[y][x] = pattern[y][len - 1 - x];
+            pattern[y][len - 1 - x] = tmp;
+        }
     }
-    let pattern = patterns[patternSelectedId];
-    for (let i = 0; i < pattern.length; i++) {
+    selectPattern(id)
+}
 
-    }
+function flipPatternOrigin(id) {
+
 }
 
 function removeBrush(id) {
