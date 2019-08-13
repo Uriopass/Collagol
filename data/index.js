@@ -68,9 +68,6 @@ function initConfig(config) {
 
     canvas.width = width * cellSize;
     canvas.height = height * cellSize;
-    canvas.style.width = width * cellSize + "px";
-    canvas.style.height = height * cellSize + "px";
-    document.getElementById("game").style.width = (width * cellSize + 600) + "px";
 
     console.log(config);
 

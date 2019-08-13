@@ -27,12 +27,12 @@
                 <div id="connected">
                     <p><span id="connectedN">?</span> users online</p>
                 </div>
-                <button class="minimal" id="sendPattern" onclick="sendHandler()" style="width:130px" disabled>Send pattern</button>
-                <button class="minimal" id="clearPattern" onclick="clearButtonHandler()" style="width:100px" disabled>Clear pattern</button>
+                <button class="minimal" id="sendPattern" onclick="sendHandler()" style="width:50%" disabled>Send pattern</button>
+                <button class="minimal" id="clearPattern" onclick="clearButtonHandler()" style="width:40%" disabled>Clear pattern</button>
                 <div style="width: 100%">
                     <input type="checkbox" id="sendOnRelease" onchange="changeAutoSendHandler()" checked> Auto send on click
                 </div>
-                <div style="width: 250px; text-align: center">
+                <div style="width: 100%; text-align: center">
                     <h2>Brushes</h2>
                 </div>
                 <button class="minimal" onclick="selectPattern(0)">✏️ Pen</button>
@@ -44,9 +44,9 @@
                 <button class="minimal" onclick="selectPattern(6)">MWSS Gun</button>
                 <button class="minimal" onclick="selectPattern(7)">Max Space Filler</button>
                 <button id="clearBoard" class="minimal" onclick="sendClear()">Clear the board</button>
-                <div style="width: 250px; text-align: center"><h2>Custom Brushes</h2></div>
+                <div style="width: 100%; text-align: center"><h2>Custom Brushes</h2></div>
                 <div id="customBrushes"></div>
-                <textarea id="rletext" style="width:250px; max-width: 250px; height: 100px;"
+                <textarea id="rletext" style="width:100%; max-width: 100%; height: 100px;"
                           placeholder="Use the #N comment metadata from the RLE format to name your brush"></textarea>
                 <button class="minimal" onclick="parseRLEClickHandler()">Parse RLE pattern</button>
                 <div>A list of patterns can be found &nbsp; <a href="https://copy.sh/life/examples/"><b>HERE</b></a></div>
