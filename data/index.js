@@ -6,21 +6,21 @@ function initws() {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
 
     ws.onopen = function (evt) {
-        document.getElementById("errorMessage").innerText = ""
+        document.getElementById("errorMessage").innerText = "";
         console.log("OPEN");
     };
     ws.onclose = function (evt) {
         console.log("CLOSE");
-	console.log(evt);
-	if(evt.code === 1001) {
-		return;
-	}
-	console.log("Retrying...");
+        console.log(evt);
+        if (evt.code === 1001) {
+            return;
+        }
+        console.log("Retrying...");
         setTimeout(function () {
             initws()
         }, 1000);
     };
-    ws.onmessage = function(evt) {
+    ws.onmessage = function (evt) {
         if (!initOk)
             return;
 
@@ -36,21 +36,21 @@ function initChatroom() {
 
     let messageDiv = document.getElementById("messages");
     messageWs = new WebSocket("ws://" + document.location.host + "/message");
-    messageWs.onopen = function(evt) {
+    messageWs.onopen = function (evt) {
         console.log("OPEN");
         messageDiv.innerHTML = "";
     };
-    messageWs.onclose = function(evt) {
+    messageWs.onclose = function (evt) {
         console.log("Lost connection to chat retrying...");
-        setTimeout(function() {
+        setTimeout(function () {
             initChatroom()
         }, 1000);
     };
-    messageWs.onmessage = function(evt) {
+    messageWs.onmessage = function (evt) {
         messageDiv.innerHTML += `<li class="message">${evt.data}</li>`;
         messageDiv.scrollTop = messageDiv.scrollHeight;
     };
-    messageWs.onerror = function(evt) {
+    messageWs.onerror = function (evt) {
         console.log("ERROR: " + evt.data);
     };
 }
@@ -59,16 +59,15 @@ function initConnected() {
     let connectedDiv = document.getElementById("connectedN");
 
     connectedWs = new WebSocket("ws://" + document.location.host + "/connected");
-    connectedWs.onclose = function(evt) {
-        setTimeout(function() {
+    connectedWs.onclose = function (evt) {
+        setTimeout(function () {
             initConnected()
         }, 2000);
     };
-    connectedWs.onmessage = function(evt) {
+    connectedWs.onmessage = function (evt) {
         connectedDiv.innerHTML = evt.data;
     };
 }
-
 
 
 function initRLEs() {
@@ -101,7 +100,7 @@ function initConfig(config) {
     initOk = true;
 }
 
-window.addEventListener("load", function(evt) {
+window.addEventListener("load", function (evt) {
     disableFor1Min();
     initChatroom();
     initws();
@@ -376,13 +375,39 @@ patterns = [
 ];
 
 function receive(obj) {
-    for (let i = 0; i < height; i++) {
-        for (let j = 0; j < width; j++) {
-            let val = obj.charAt(i * width + j);
+    let C = 0;
+    let x = 0;
+    let y = 0;
 
-            if (grid[i][j] < 2) {
-                grid[i][j] = val === '1' ? 1 : 0;
+    for (let i = 0, len = obj.length; i < len; i++) {
+        let val = obj.charAt(i);
+        if ('0' <= val && val <= '9') {
+            C = C * 10 + (val - '0')
+        } else if (val === 'o') {
+            if (C === 0) {
+                C = 1
             }
+            while (C > 0) {
+                if (grid[y][x] < 2) {
+                    grid[y][x] = 1;
+                }
+                x++;
+                C--;
+            }
+        } else if (val === 'b') {
+            if (C === 0) {
+                C = 1
+            }
+            while (C > 0) {
+                if (grid[y][x] < 2) {
+                    grid[y][x] = 0;
+                }
+                x++;
+                C--;
+            }
+        } else if (val === '$') {
+            y++;
+            x = 0;
         }
     }
 
@@ -424,7 +449,7 @@ function sendHandler() {
 }
 
 function mouseUpHandler() {
-    if(document.getElementById("sendOnRelease").checked) {
+    if (document.getElementById("sendOnRelease").checked) {
         sendHandler();
         return
     }
@@ -453,10 +478,10 @@ function disableFor1Min() {
     document.getElementById("clearBoard").disabled = true;
     let counter = 60;
     document.getElementById("clearBoard").innerText = "Clear the board - " + counter + "s";
-    let t = setInterval(function() {
-        counter --;
+    let t = setInterval(function () {
+        counter--;
         document.getElementById("clearBoard").innerText = "Clear the board - " + counter + "s";
-        if(counter === 0) {
+        if (counter === 0) {
             clearTimeout(t);
             document.getElementById("clearBoard").disabled = false;
             document.getElementById("clearBoard").innerText = "Clear the board";
@@ -488,12 +513,12 @@ document.onmousemove = repositionPatternCanvas;
 document.onkeypress = keypresshandler;
 
 function keypresshandler(e) {
-    if(e.path[0].type !== undefined) {
-        if(e.path[0].type.startsWith("text")) {
+    if (e.path[0].type !== undefined) {
+        if (e.path[0].type.startsWith("text")) {
             return
         }
     }
-    switch(e.code) {
+    switch (e.code) {
         case "KeyY":
             flipPatternY(patternSelectedId);
             break;
@@ -784,17 +809,17 @@ function loadRLEs() {
 
 function flipPatternY(id) {
     let pattern = patterns[id];
-    for (let y = 0; y < pattern.length/2; y++) {
+    for (let y = 0; y < pattern.length / 2; y++) {
         let tmp = pattern[y];
-        pattern[y] = pattern[pattern.length-1-y];
-        pattern[pattern.length-1-y] = tmp;
+        pattern[y] = pattern[pattern.length - 1 - y];
+        pattern[pattern.length - 1 - y] = tmp;
     }
     selectPattern(id)
 }
 
 function flipPatternX(id) {
     let pattern = patterns[id];
-    for(let y = 0 ; y < pattern.length ; y++) {
+    for (let y = 0; y < pattern.length; y++) {
         let len = pattern[y].length;
         for (let x = 0; x < len / 2; x++) {
             let tmp = pattern[y][x];
@@ -809,9 +834,9 @@ function rotatePattern(id) {
     let pattern = patterns[id];
 
     let patCopy = new Array(pattern[0].length);
-    for(let y = 0 ; y < patCopy.length ; y++) {
+    for (let y = 0; y < patCopy.length; y++) {
         patCopy[y] = new Array(pattern.length);
-        for(let x = 0 ; x < patCopy[y].length ; x++) {
+        for (let x = 0; x < patCopy[y].length; x++) {
             patCopy[y][x] = pattern[patCopy[y].length - 1 - x][y];
         }
     }
@@ -825,6 +850,7 @@ function removeBrush(id) {
     brushes[id] = "";
     saveRLEs();
 }
+
 function clearButtonHandler() {
     resetGrids()
 }

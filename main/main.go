@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -13,6 +14,9 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "test" {
+		runTests()
+	}
 	rand.Seed(time.Now().Unix())
 	golState := newGolState(globalConf)
 	golHub := newGolHub()
