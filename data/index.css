@@ -55,6 +55,10 @@ a {
 }
 
 #gridContainer {
+    width: 100%;
+}
+
+#gameCanvas {
     width: 60%;
 }
 
