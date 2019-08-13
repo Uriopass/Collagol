@@ -13,9 +13,14 @@
             <div id="chatbox">
                 <ul id="messages">
                 </ul>
-                <input placeholder="Enter your message here" id="messageText" class="messageinput" type="text"
-                       onkeydown="if(event.key==='Enter') sendMessage();"/>
-                <input placeholder="Enter your username here" id="usernameText" class="messageinput" type="text"/>
+                <div id="chatboxUserinfo">
+                    <div id="sendDiv">
+                        <input placeholder="Enter your message here" id="messageText" class="messageinput" type="text"
+                               onkeydown="if(event.key==='Enter') sendMessage();"/>
+                        <button class="minimal" type="text">Send </button>
+                    </div>
+                    <input placeholder="Enter your username here" id="usernameText" class="messageinput" type="text"/>
+                </div>
             </div>
             <canvas id="gridContainer" width="800" height="800"></canvas>
             <div id="controls">
