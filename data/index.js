@@ -1,5 +1,6 @@
 let ws;
 let messageWs;
+let connectedWs;
 
 function initws() {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
@@ -31,6 +32,8 @@ function initws() {
 }
 
 function initChatroom() {
+    document.getElementById("usernameText").value = Cookies.get("username", " ");
+
     let messageDiv = document.getElementById("messages");
     messageWs = new WebSocket("ws://" + document.location.host + "/message");
     messageWs.onopen = function(evt) {
@@ -50,8 +53,23 @@ function initChatroom() {
     messageWs.onerror = function(evt) {
         console.log("ERROR: " + evt.data);
     };
-    document.getElementById("usernameText").value = Cookies.get("username", " ");
 }
+
+function initConnected() {
+    let connectedDiv = document.getElementById("connectedN");
+
+    connectedWs = new WebSocket("ws://" + document.location.host + "/connected");
+    connectedWs.onclose = function(evt) {
+        setTimeout(function() {
+            initConnected()
+        }, 2000);
+    };
+    connectedWs.onmessage = function(evt) {
+        connectedDiv.innerHTML = evt.data;
+    };
+}
+
+
 
 function initRLEs() {
     let rleList = loadRLEs();
@@ -88,6 +106,7 @@ window.addEventListener("load", function(evt) {
     initChatroom();
     initws();
     initRLEs();
+    initConnected();
 });
 
 function sendMessage() {
@@ -102,11 +121,6 @@ function sendMessage() {
 
 const userAction = async () => {
     const response = await fetch('config');
-    return await response.json();
-};
-
-const getConnected = async () => {
-    const response = await fetch('connected');
     return await response.json();
 };
 
@@ -811,14 +825,6 @@ function removeBrush(id) {
     brushes[id] = "";
     saveRLEs();
 }
-
-setInterval(function() {
-    getConnected().then(function(data) {
-        document.getElementById("connectedN").innerHTML = data;
-
-    });
-}, 1000);
-
 function clearButtonHandler() {
     resetGrids()
 }

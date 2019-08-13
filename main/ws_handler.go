@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,6 +32,7 @@ func golWs(state *golHub, banner *banner) func(w http.ResponseWriter, r *http.Re
 		if v, connected := banner.isConnected(remoteaddr) ; connected {
 			state.unSubscribe(v)
 		}
+
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Print("upgrade:", err)
@@ -82,5 +84,23 @@ func golWs(state *golHub, banner *banner) func(w http.ResponseWriter, r *http.Re
 			}
 		}
 		_ = c.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, ""), time.Now().Add(1*time.Second))
+	}
+}
+
+func connectedWs(state *golHub) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		c, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Print("upgrade:", err)
+			return
+		}
+
+		for {
+			err = c.WriteMessage(websocket.TextMessage, []byte(strconv.Itoa(len(state.updates))))
+			if err != nil {
+				break
+			}
+			time.Sleep(1*time.Second)
+		}
 	}
 }

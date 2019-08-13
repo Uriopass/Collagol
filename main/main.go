@@ -27,6 +27,7 @@ func main() {
 	// websocket
 	http.HandleFunc("/echo", golWs(golHub, banner))
 	http.HandleFunc("/message", messaging.WsHandler(hub))
+	http.HandleFunc("/connected", connectedWs(golHub))
 
 	// http info
 	http.HandleFunc("/config", func(writer http.ResponseWriter, request *http.Request) {
@@ -34,11 +35,6 @@ func main() {
 		_, _ = writer.Write(s)
 	})
 
-	http.HandleFunc("/connected", func(writer http.ResponseWriter, request *http.Request) {
-		connected := len(golHub.updates)
-		s, _ := json.Marshal(connected)
-		_, _ = writer.Write(s)
-	})
 	// Media
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/index.html", serveIndex)
