@@ -465,10 +465,33 @@ function sendClear() {
 
 let patterncanvas = document.getElementById('patternDrawer');
 
-document.onmousemove = function(e) {
+function repositionPatternCanvas(e) {
     patterncanvas.style.left = (e.pageX - Math.floor(patterncanvas.width / 2)) + "px";
     patterncanvas.style.top = (e.pageY - Math.floor(patterncanvas.height / 2)) + "px";
-};
+}
+
+document.onmousemove = repositionPatternCanvas;
+document.onkeypress = keypresshandler;
+
+function keypresshandler(e) {
+    if(e.path[0].type !== undefined) {
+        if(e.path[0].type.startsWith("text")) {
+            return
+        }
+    }
+    switch(e.code) {
+        case "KeyY":
+            flipPatternY(patternSelectedId);
+            break;
+        case "KeyX":
+            flipPatternX(patternSelectedId);
+            break;
+        case "KeyR":
+            rotatePattern(patternSelectedId);
+            break;
+    }
+    repositionPatternCanvas();
+}
 
 let patterncontext = document.getElementById('patternDrawer').getContext('2d');
 let patternSelectedId = 0;
@@ -768,8 +791,19 @@ function flipPatternX(id) {
     selectPattern(id)
 }
 
-function flipPatternOrigin(id) {
+function rotatePattern(id) {
+    let pattern = patterns[id];
 
+    let patCopy = new Array(pattern[0].length);
+    for(let y = 0 ; y < patCopy.length ; y++) {
+        patCopy[y] = new Array(pattern.length);
+        for(let x = 0 ; x < patCopy[y].length ; x++) {
+            patCopy[y][x] = pattern[patCopy[y].length - 1 - x][y];
+        }
+    }
+
+    patterns[id] = patCopy;
+    selectPattern(id)
 }
 
 function removeBrush(id) {
