@@ -19,7 +19,7 @@ function initws() {
             initws()
         }, 1000);
     };
-    ws.onmessage = function (evt) {
+    ws.onmessage = function(evt) {
         if (!initOk)
             return;
 
@@ -33,30 +33,30 @@ function initws() {
 function initChatroom() {
     let messageDiv = document.getElementById("messages");
     messageWs = new WebSocket("ws://" + document.location.host + "/message");
-    messageWs.onopen = function (evt) {
+    messageWs.onopen = function(evt) {
         console.log("OPEN");
         messageDiv.innerHTML = "";
     };
-    messageWs.onclose = function (evt) {
+    messageWs.onclose = function(evt) {
         console.log("Lost connection to chat retrying...");
-        setTimeout(function () {
+        setTimeout(function() {
             initChatroom()
         }, 1000);
     };
-    messageWs.onmessage = function (evt) {
+    messageWs.onmessage = function(evt) {
         messageDiv.innerHTML += `<li class="message">${evt.data}</li>`;
         messageDiv.scrollTop = messageDiv.scrollHeight;
     };
-    messageWs.onerror = function (evt) {
+    messageWs.onerror = function(evt) {
         console.log("ERROR: " + evt.data);
     };
     document.getElementById("usernameText").value = Cookies.get("username", " ");
 }
 
 function initRLEs() {
-    let rles = loadRLEs();
-    for (let i = 0; i < rles.length; i++) {
-        addRLE(rles[i])
+    let rleList = loadRLEs();
+    for (let i = 0; i < rleList.length; i++) {
+        addRLE(rleList[i])
     }
     saveRLEs()
 }
@@ -86,7 +86,8 @@ function initConfig(config) {
     initOk = true;
 }
 
-window.addEventListener("load", function (evt) {
+window.addEventListener("load", function(evt) {
+    disableFor1Min();
     initChatroom();
     initws();
     initRLEs();
@@ -121,16 +122,41 @@ let grid;
 let initOk = false;
 let cellSize = -1;
 let canvas = document.getElementById('gridContainer');
-let patternWidth = 0;
-let patternHeight = 0;
 
-let bgcolor = [0, 0, 0];
-let fgcolor = [255, 255, 255];
-let activatecolor = [0xEE, 0x82, 0xEE]; // violet
-let erasecolor = [255, 0, 0];
+// RGBA format
+let bgcolor = 0x000000FF;
+let fgcolor = 0xFFFFFFFF;
+let activatecolor = 0xEE82EEff; // violet
+let erasecolor = 0xFF0000FF;
+
+let bgcolorendian = 0x000000FF;
+let fgcolorendian = 0xFFFFFFFF;
+let activatecolorendian = 0xEE82EEff; // violet
+let erasecolorendian = 0xFF0000FF;
+
+function swap32(val) {
+    return ((val & 0xFF) << 24) |
+        ((val & 0xFF00) << 8) |
+        ((val >> 8) & 0xFF00) |
+        ((val >> 24) & 0xFF);
+}
+
+let test32 = new Uint32Array(1);
+test32[0] = 0x1;
+let isLittleEndian = new Uint8Array(test32.buffer)[0] > 0;
+
+if (isLittleEndian) {
+    bgcolorendian = swap32(bgcolor) >>> 0;
+    fgcolorendian = swap32(fgcolor) >>> 0;
+    activatecolorendian = swap32(activatecolor) >>> 0; // violet
+    erasecolorendian = swap32(erasecolor) >>> 0;
+}
+
 
 patterns = [
-    [[1]],
+    [
+        [1]
+    ],
     [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -162,7 +188,8 @@ patterns = [
         [0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ], [
+    ],
+    [
         [1, 1, 1],
         [1, 0, 0],
         [0, 1, 0]
@@ -304,13 +331,43 @@ patterns = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
+    ],
+    [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0],
+        [1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0],
+        [1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+        [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+        [0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0],
+        [1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1],
+        [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1],
+        [0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+        [0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ],
+
 ];
 
 function receive(obj) {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
-            let val = obj.charAt(i*width+j);
+            let val = obj.charAt(i * width + j);
 
             if (grid[i][j] < 2) {
                 grid[i][j] = val === '1' ? 1 : 0;
@@ -355,7 +412,12 @@ function sendHandler() {
     draw()
 }
 
-function sendDeletion() {
+function mouseUpHandler() {
+    if(document.getElementById("sendOnRelease").checked) {
+        sendHandler();
+        return
+    }
+
     let tosend = [];
     let todel = [];
 
@@ -376,15 +438,29 @@ function sendDeletion() {
     ws.send(JSON.stringify([tosend, todel]));
 }
 
+function disableFor1Min() {
+    document.getElementById("clearBoard").disabled = true;
+    let counter = 60;
+    document.getElementById("clearBoard").innerText = "Clear the board - " + counter + "s";
+    let t = setInterval(function() {
+        counter --;
+        document.getElementById("clearBoard").innerText = "Clear the board - " + counter + "s";
+        if(counter === 0) {
+            clearTimeout(t);
+            document.getElementById("clearBoard").disabled = false;
+            document.getElementById("clearBoard").innerText = "Clear the board";
+        }
+    }, 1000);
+}
+
 function sendClear() {
+    disableFor1Min();
     let tosend = [];
     let todel = [];
 
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             todel.push([j, i]);
-            grid[i][j] = 0;
-            redrawCell(j, i, "")
         }
     }
     ws.send(JSON.stringify([tosend, todel]));
@@ -392,7 +468,7 @@ function sendClear() {
 
 let patterncanvas = document.getElementById('patternDrawer');
 
-document.onmousemove = function (e) {
+document.onmousemove = function(e) {
     patterncanvas.style.left = (e.pageX - Math.floor(patterncanvas.width / 2)) + "px";
     patterncanvas.style.top = (e.pageY - Math.floor(patterncanvas.height / 2)) + "px";
 };
@@ -409,15 +485,13 @@ function selectPattern(id) {
     patterncanvas.height = pattern.length * cellSize;
     for (let y = 0; y < pattern.length; y++) {
         for (let x = 0; x < pattern[y].length; x++) {
-            patterncontext.beginPath();
-            patterncontext.rect(x * cellSize, y * cellSize, cellSize, cellSize);
             patterncontext.fillStyle = 'transparent';
             if (pattern[y][x] === 1) {
-                patterncontext.fillStyle = `rgb(${activatecolor[0]}, ${activatecolor[1]}, ${activatecolor[2]}`
+                patterncontext.fillStyle = `#${activatecolor.toString(16)}`
             } else if (pattern[y][x] === -1) {
-                patterncontext.fillStyle = `rgb(${erasecolor[0]}, ${erasecolor[1]}, ${erasecolor[2]}`;
+                patterncontext.fillStyle = `#${erasecolor.toString(16)}`;
             }
-            patterncontext.fill();
+            patterncontext.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
         }
     }
 }
@@ -433,18 +507,19 @@ function applyPattern(pos_x, pos_y) {
             }
             if (pattern[y][x] === 1) {
                 grid[Y][X] = 2;
-            }
-            if (pattern[y][x] === -1) {
+            } else if (pattern[y][x] === -1) {
                 grid[Y][X] = 3;
+            } else {
+                continue;
             }
+            redrawCell(X, Y);
         }
     }
-    draw()
 }
 
 canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
-canvas.onmouseup = sendDeletion;
+canvas.onmouseup = mouseUpHandler;
 let context = document.getElementById('gridContainer').getContext('2d');
 
 function onCanvasOver(e) {
@@ -470,6 +545,13 @@ function onCanvasOver(e) {
     }
 }
 
+function changeAutoSendHandler() {
+    let d = document.getElementById('sendPattern');
+    d.disabled = !d.disabled;
+    let d2 = document.getElementById('clearPattern');
+    d2.disabled = !d2.disabled;
+}
+
 function redrawCell(x, y, color) {
     if (x < 0 || y < 0 || x >= width || y >= height) {
         return
@@ -486,7 +568,7 @@ function redrawCell(x, y, color) {
             color = bgcolor;
         }
     }
-    context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]}`;
+    context.fillStyle = `#${color.toString(16)}`;
     context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
 }
@@ -501,31 +583,29 @@ function getMousePos(canvas, evt) {
 
 function draw() {
     let image = context.createImageData(width * cellSize, height * cellSize);
-    let data = image.data;
 
-    let x = 0, y = 0;
+    let data32 = new Uint32Array(image.data.buffer);
+
+    let x = 0,
+        y = 0;
     let color;
-    let ind = 0;
-    for (let i = 0; i < data.length; i += 4, ind++) {
-        let lul = ~~(ind / cellSize);
+    for (let i = 0; i < data32.length; i++) {
+        let lul = ~~(i / cellSize);
         x = lul % width;
         y = ~~(lul / (width * cellSize));
 
         let cell = grid[y][x];
         if (cell === 1) {
-            color = fgcolor;
+            color = fgcolorendian;
         } else if (cell === 2) {
-            color = activatecolor;
+            color = activatecolorendian;
         } else if (cell === 3) {
-            color = erasecolor;
+            color = erasecolorendian;
         } else {
-            color = bgcolor;
+            color = bgcolorendian;
         }
 
-        data[i] = color[0]; // rouge
-        data[i + 1] = color[1]; // vert
-        data[i + 2] = color[2]; // bleu
-        data[i + 3] = 255;
+        data32[i] = color;
     }
 
     context.putImageData(image, 0, 0);
@@ -682,8 +762,8 @@ function removeBrush(id) {
     saveRLEs();
 }
 
-setInterval(function () {
-    getConnected().then(function (data) {
+setInterval(function() {
+    getConnected().then(function(data) {
         document.getElementById("connectedN").innerHTML = data;
 
     });

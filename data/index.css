@@ -134,6 +134,19 @@ h2 {
     cursor: pointer;
 }
 
+#clearBoard {
+    background-color: #ffb0b6;
+
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+#clearBoard:disabled {
+    background: #50302e;
+    color: gray;
+}
+
 .minimal {
     position: relative;
     background: white;
@@ -147,7 +160,23 @@ h2 {
     text-align: center;
     text-shadow: 0 1px 0 #fff;
     width: 250px;
-    margin: 2px;
+    margin: 2px 0;
+}
+
+.minimal:disabled {
+    background: #505050;
+    color: gray;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+.minimal:disabled:hover {
+    background: #505050;
+    color: gray;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    cursor: default;
 }
 
 .minimal:hover {

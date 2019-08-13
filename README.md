@@ -19,7 +19,7 @@ Front and back communicate through a websocket, each update sends the entire wor
  * Identify which cells was placed by player
  * Add send button
  * ~One IP at a time only~
- * Optimize draw using Uint32 
+ * ~Optimize draw using Uint32~
  * Redo CSS to support more resolutions
  * Better mobile support 
  * Change /connected endpoint to WS
