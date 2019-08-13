@@ -1,16 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/itchio/lzma"
 	"go.uber.org/atomic"
 )
 
@@ -25,31 +22,7 @@ type point [2]int
 
 var counter atomic.Int32
 
-func compress(tt []byte) []byte {
-	b := new(bytes.Buffer)
-
-	pr, pw := io.Pipe()
-	defer pr.Close()
-
-	in := bytes.NewBuffer(tt)
-	size := int64(len(tt))
-
-	go func() {
-		defer pw.Close()
-
-		w := lzma.NewWriterSizeLevel(pw, size, lzma.BestSpeed)
-		defer w.Close()
-
-		_, err := io.Copy(w, in)
-		if err != nil {
-			log.Printf("error encoding: %v\n", err)
-		}
-	}()
-	_, _ = io.Copy(b, pr)
-	return b.Bytes()
-}
-
-func wsHandler(state *golState, banner *banner) func(w http.ResponseWriter, r *http.Request) {
+func golWs(state *golHub, banner *banner) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		IP := strings.Split(r.RemoteAddr, ":")
 		IP = IP[:len(IP)-1]
@@ -102,13 +75,12 @@ func wsHandler(state *golState, banner *banner) func(w http.ResponseWriter, r *h
 		}()
 
 		for newCells := range out {
-			//			compressed := compress(payload)
 			err = c.WriteMessage(websocket.TextMessage, []byte(newCells))
 			if err != nil {
 				log.Println("Write err: ", err)
 				break
 			}
 		}
-		c.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, ""), time.Now().Add(1 * time.Second))
+		_ = c.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, ""), time.Now().Add(1*time.Second))
 	}
 }

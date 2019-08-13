@@ -14,18 +14,18 @@ import (
 
 func main() {
 	rand.Seed(time.Now().Unix())
-	gol := newGolState(globalConf)
-	go gol.updateLoop()
-
+	golState := newGolState(globalConf)
+	golHub := newGolHub()
+	banner := initBanner()
 	hub := messaging.NewHub()
+
+	go golHub.run(golState)
 	go hub.Run()
 
-	banner := initBanner()
-
-	log.SetFlags(0)
+	log.SetFlags(log.LstdFlags)
 
 	// websocket
-	http.HandleFunc("/echo", wsHandler(gol, banner))
+	http.HandleFunc("/echo", golWs(golHub, banner))
 	http.HandleFunc("/message", messaging.WsHandler(hub))
 
 	// http info
@@ -33,8 +33,9 @@ func main() {
 		s, _ := json.Marshal(globalConf)
 		_, _ = writer.Write(s)
 	})
+
 	http.HandleFunc("/connected", func(writer http.ResponseWriter, request *http.Request) {
-		connected := len(gol.updates)
+		connected := len(golHub.updates)
 		s, _ := json.Marshal(connected)
 		_, _ = writer.Write(s)
 	})
