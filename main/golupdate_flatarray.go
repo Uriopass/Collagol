@@ -6,8 +6,6 @@ import (
 
 type grid [][]int
 
-type encodedGrid string
-
 func (g grid) encode() encodedGrid {
 	encoded := strings.Builder{}
 
@@ -22,11 +20,6 @@ func (g grid) encode() encodedGrid {
 	}
 
 	return encodedGrid(encoded.String())
-}
-
-type subType struct {
-	id int
-	c  chan encodedGrid
 }
 
 type golState struct {
@@ -46,6 +39,16 @@ func newGolState(config config) *golState {
 	return &gs
 }
 
+func (gs *golState) setPositions(points []point, value int) {
+	for _, p := range points {
+		x := p[0]
+		y := p[1]
+		if x >= 0 && x < gs.width && y >= 0 && y < gs.height {
+			gs.grid[y][x] = value
+		}
+	}
+}
+
 func (gs *golState) updateCase(x, y, neighs int, tmpGrid grid) {
 	switch neighs {
 	case 3:
@@ -57,38 +60,39 @@ func (gs *golState) updateCase(x, y, neighs int, tmpGrid grid) {
 	}
 }
 
-func (gs *golState) nextTimeStep() grid {
+func (gs *golState) goForward(generations int) encodedGrid {
 	tmpGrid := make(grid, gs.height)
 	for i := 0; i < gs.height; i++ {
 		tmpGrid[i] = make([]int, gs.width)
 	}
+	for gen := 0 ; gen < generations ; gen++ {
+		// Center
+		for y := 1; y < gs.height-1; y++ {
+			for x := 1; x < gs.width-1; x++ {
+				neighs := gs.fastNeighs(x, y)
+				gs.updateCase(x, y, neighs, tmpGrid)
+			}
+		}
 
-	// Center
-	for y := 1; y < gs.height-1; y++ {
-		for x := 1; x < gs.width-1; x++ {
-			neighs := gs.fastNeighs(x, y)
-			gs.updateCase(x, y, neighs, tmpGrid)
+		// Bounds
+		for y := 0; y < gs.height; y++ {
+			for x := 0; x < gs.width; x += gs.width - 1 {
+				neighs := gs.countNeighsTorus(x, y)
+				gs.updateCase(x, y, neighs, tmpGrid)
+			}
+		}
+		for y := 0; y < gs.height; y += gs.height - 1 {
+			for x := 0; x < gs.width; x++ {
+				neighs := gs.countNeighsTorus(x, y)
+				gs.updateCase(x, y, neighs, tmpGrid)
+			}
+		}
+
+		for i := 0; i < gs.height; i++ {
+			copy(gs.grid[i], tmpGrid[i])
 		}
 	}
-
-	// Bounds
-	for y := 0; y < gs.height; y++ {
-		for x := 0; x < gs.width; x += gs.width - 1 {
-			neighs := gs.countNeighsTorus(x, y)
-			gs.updateCase(x, y, neighs, tmpGrid)
-		}
-	}
-	for y := 0; y < gs.height; y += gs.height - 1 {
-		for x := 0; x < gs.width; x++ {
-			neighs := gs.countNeighsTorus(x, y)
-			gs.updateCase(x, y, neighs, tmpGrid)
-		}
-	}
-
-	for i := 0; i < gs.height; i++ {
-		copy(gs.grid[i], tmpGrid[i])
-	}
-	return tmpGrid
+	return tmpGrid.encode()
 }
 
 var dec = [8][2]int{

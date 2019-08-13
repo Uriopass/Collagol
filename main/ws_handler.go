@@ -96,7 +96,7 @@ func connectedWs(state *golHub) func(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for {
-			err = c.WriteMessage(websocket.TextMessage, []byte(strconv.Itoa(len(state.updates))))
+			err = c.WriteMessage(websocket.TextMessage, []byte(strconv.Itoa(len(state.broadcast))))
 			if err != nil {
 				break
 			}
