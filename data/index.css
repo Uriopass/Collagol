@@ -42,7 +42,8 @@ a {
 }
 
 #game {
-    width: 80%;
+    width: 100%;
+    max-width: 1400px;
     margin: auto;
     text-align: center;
     display: flex;
