@@ -108,7 +108,6 @@ function sendMessage() {
     let messageTextEl = document.getElementById("messageText");
     let val = messageTextEl.value.trim();
     messageTextEl.value = "";
-    messageTextEl.blur();
 
     let username = document.getElementById("usernameText").value;
     if (val.length > 0) {
@@ -617,6 +616,9 @@ function onCanvasOver(e) {
     let y = Math.floor(pos.y);
 
     if (patternSelectedId === 0 || e.buttons === 2 || e.buttons === 4) {
+        let messageTextEl = document.getElementById("messageText");
+        messageTextEl.blur();
+
         handleMovement(e, x, y);
         return;
     }
