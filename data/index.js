@@ -127,12 +127,6 @@ let width = -1;
 let grid;
 let initOk = false;
 let canvas = document.getElementById('gridContainer');
-canvas.width = screen.width;
-canvas.height = screen.height;
-
-image = context.createImageData(canvas.width, canvas.height);
-data32 = new Uint32Array(image.data.buffer);
-
 
 // RGBA format
 let bgcolor = 0x000000FF;
@@ -605,6 +599,11 @@ canvas.oncontextmenu = function (e) {
 };
 
 let context = document.getElementById('gridContainer').getContext('2d');
+canvas.width = screen.width;
+canvas.height = screen.height;
+
+image = context.createImageData(canvas.width, canvas.height);
+data32 = new Uint32Array(image.data.buffer);
 
 function onCanvasOver(e) {
     e.preventDefault();
