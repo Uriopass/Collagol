@@ -509,9 +509,11 @@ document.onmousemove = repositionPatternCanvas;
 document.onkeypress = keypresshandler;
 
 function keypresshandler(e) {
-    if (e.path[0].type !== undefined) {
-        if (e.path[0].type.startsWith("text")) {
-            return
+    if(e.path !== undefined) {
+        if (e.path[0].type !== undefined) {
+            if (e.path[0].type.startsWith("text")) {
+                return
+            }
         }
     }
     switch (e.code) {
