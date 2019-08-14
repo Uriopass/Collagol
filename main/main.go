@@ -25,11 +25,19 @@ func redirectToHTTPS(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, target, http.StatusTemporaryRedirect)
 }
 
+func mainRedirect() {
+	http.HandleFunc("/", redirectToHTTPS)
+	log.Fatal(http.ListenAndServe(":80", nil))
+}
+
 func main() {
 	runtime.GOMAXPROCS(1)
 	if len(os.Args) > 1 && os.Args[1] == "test" {
 		runTests()
 		return
+	}
+	if len(os.Args) > 1 && os.Args[1] == "redirect" {
+		mainRedirect()
 	}
 	rand.Seed(time.Now().Unix())
 	golState := newGolState(globalConf)

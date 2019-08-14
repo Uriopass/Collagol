@@ -1,0 +1,1 @@
+./build.sh && sudo nohup ./bin/collagol redirect > redirect_nohup.out 2> redirect_nohup.err </dev/null &
