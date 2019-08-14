@@ -603,17 +603,22 @@ canvas.onwheel = function(e) {
 canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
 canvas.onmouseup = mouseUpHandler;
+canvas.oncontextmenu = function (e) {
+    return false;
+};
+
 let context = document.getElementById('gridContainer').getContext('2d');
 
 function onCanvasOver(e) {
+    e.preventDefault();
     let pos = getMousePos(canvas, e);
     let x = Math.floor(pos.x);
     let y = Math.floor(pos.y);
 
-    if (patternSelectedId === 0) {
+    if (patternSelectedId === 0 || e.buttons === 2 || e.buttons === 4) {
         handleMovement(e, x, y);
+        return;
     }
-    let projected = projectOnMap(x, y);
 
     let isClick = e.buttons === 1 || e.buttons === 3;
 
