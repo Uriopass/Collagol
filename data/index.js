@@ -3,7 +3,7 @@ let messageWs;
 let connectedWs;
 
 function initws() {
-    ws = new WebSocket("wss://" + document.location.host + "/echo");
+    ws = new WebSocket("{{.WSTYPE}}://" + document.location.host + "/echo");
 
     ws.onopen = function () {
         document.getElementById("errorMessage").innerText = "";
@@ -36,7 +36,7 @@ function initChatroom() {
     document.getElementById("usernameText").value = Cookies.get("username", " ");
 
     let messageDiv = document.getElementById("messages");
-    messageWs = new WebSocket("wss://" + document.location.host + "/message");
+    messageWs = new WebSocket("{{.WSTYPE}}://" + document.location.host + "/message");
     messageWs.onopen = function () {
         console.log("OPEN");
         messageDiv.innerHTML = "";
@@ -59,7 +59,7 @@ function initChatroom() {
 function initConnected() {
     let connectedDiv = document.getElementById("connectedN");
 
-    connectedWs = new WebSocket("wss://" + document.location.host + "/connected");
+    connectedWs = new WebSocket("{{.WSTYPE}}://" + document.location.host + "/connected");
     connectedWs.onclose = function () {
         setTimeout(function () {
             initConnected()
@@ -602,8 +602,8 @@ let context = document.getElementById('gridContainer').getContext('2d');
 canvas.width = screen.width;
 canvas.height = screen.height;
 
-image = context.createImageData(canvas.width, canvas.height);
-data32 = new Uint32Array(image.data.buffer);
+let image = context.createImageData(canvas.width, canvas.height);
+let data32 = new Uint32Array(image.data.buffer);
 
 function onCanvasOver(e) {
     e.preventDefault();
@@ -692,9 +692,6 @@ function unproject(x, y) {
 let viewportX = -400;
 let viewportY = -400;
 let zoom = 1;
-
-let image;
-let data32;
 
 function draw() {
     if (!initOk) {

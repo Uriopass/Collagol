@@ -2,17 +2,19 @@ package main
 
 import (
 	"encoding/json"
-	"html/template"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"runtime"
 	"strconv"
+	"text/template"
 	"time"
 
 	"github.com/Uriopass/Collagol/messaging"
 )
+
+var isSecure bool
 
 func main() {
 	runtime.GOMAXPROCS(1)
@@ -45,11 +47,34 @@ func main() {
 	// Media
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/index.html", serveIndex)
+	http.HandleFunc("/data/index.js", serveJS)
 	http.Handle("/data/", http.FileServer(http.Dir(".")))
 
 	// Start
 	log.Println("Init ok")
-	log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/collagol.douady.paris/fullchain.pem", "/etc/letsencrypt/live/collagol.douady.paris/privkey.pem", nil))
+	if len(os.Args) > 1 && os.Args[1] == "nosecure" {
+		log.Fatal(http.ListenAndServe(":80", nil))
+	} else {
+		isSecure = true
+		log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/collagol.douady.paris/fullchain.pem", "/etc/letsencrypt/live/collagol.douady.paris/privkey.pem", nil))
+	}
+}
+
+type wsStruct struct {
+	WSTYPE string
+}
+
+func serveJS(writer http.ResponseWriter, request *http.Request) {
+	t := template.New("index.js")
+	t, _ = t.ParseFiles("data/index.js")
+	log.Println("serving index.js")
+	r := wsStruct{
+		WSTYPE: "ws",
+	}
+	if isSecure {
+		r.WSTYPE = "wss"
+	}
+	_ = t.Execute(writer, r)
 }
 
 type rStruct struct {
