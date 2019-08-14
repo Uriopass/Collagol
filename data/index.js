@@ -3,7 +3,7 @@ let messageWs;
 let connectedWs;
 
 function initws() {
-    ws = new WebSocket("ws://" + document.location.host + "/echo");
+    ws = new WebSocket("wss://" + document.location.host + "/echo");
 
     ws.onopen = function () {
         document.getElementById("errorMessage").innerText = "";
@@ -36,7 +36,7 @@ function initChatroom() {
     document.getElementById("usernameText").value = Cookies.get("username", " ");
 
     let messageDiv = document.getElementById("messages");
-    messageWs = new WebSocket("ws://" + document.location.host + "/message");
+    messageWs = new WebSocket("wss://" + document.location.host + "/message");
     messageWs.onopen = function () {
         console.log("OPEN");
         messageDiv.innerHTML = "";
@@ -59,7 +59,7 @@ function initChatroom() {
 function initConnected() {
     let connectedDiv = document.getElementById("connectedN");
 
-    connectedWs = new WebSocket("ws://" + document.location.host + "/connected");
+    connectedWs = new WebSocket("wss://" + document.location.host + "/connected");
     connectedWs.onclose = function () {
         setTimeout(function () {
             initConnected()
