@@ -30,7 +30,7 @@ func main() {
 	go hub.Run()
 
 	log.SetFlags(log.LstdFlags)
-	
+
 	// websocket
 	http.HandleFunc("/echo", golWs(golHub, banner))
 	http.HandleFunc("/message", messaging.WsHandler(hub))
@@ -49,7 +49,7 @@ func main() {
 
 	// Start
 	log.Println("Init ok")
-	log.Fatal(http.ListenAndServe(":80", nil))
+	log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/collagol.douady.paris/fullchain.pem", "/etc/letsencrypt/live/collagol.douady.paris/privkey.pem", nil))
 }
 
 type rStruct struct {
