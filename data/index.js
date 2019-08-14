@@ -654,8 +654,8 @@ function getMousePos(canvas, evt) {
 
 function projectOnMap(x, y) {
     return {
-        x: ((~~((x - canvas.width/2)/zoom - viewportX)) % width + width) % width,
-        y: ((~~((y - canvas.height/2)/zoom - viewportY)) % height + height) % height,
+        x: (~~((x - canvas.width/2)/zoom - viewportX) % width + width) % width,
+        y: (~~((y - canvas.height/2)/zoom - viewportY) % height + height) % height,
     }
 }
 
