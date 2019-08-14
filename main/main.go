@@ -16,6 +16,15 @@ import (
 
 var isSecure bool
 
+func redirectToHTTPS(w http.ResponseWriter, req *http.Request) {
+	target := "https://" + req.Host + req.URL.Path
+	if len(req.URL.RawQuery) > 0 {
+		target += "?" + req.URL.RawQuery
+	}
+	log.Printf("redirect to: %s", target)
+	http.Redirect(w, req, target, http.StatusTemporaryRedirect)
+}
+
 func main() {
 	runtime.GOMAXPROCS(1)
 	if len(os.Args) > 1 && os.Args[1] == "test" {
@@ -56,6 +65,7 @@ func main() {
 		log.Fatal(http.ListenAndServe(":80", nil))
 	} else {
 		isSecure = true
+		go log.Fatal(http.ListenAndServe(":80", http.HandlerFunc(redirectToHTTPS)))
 		log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/collagol.douady.paris/fullchain.pem", "/etc/letsencrypt/live/collagol.douady.paris/privkey.pem", nil))
 	}
 }
