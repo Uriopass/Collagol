@@ -30,8 +30,8 @@ func (g grid) encode() encodedGrid {
 				} else {
 					encoded.WriteByte('b')
 				}
-				lastC = 1
 			}
+			lastC = 1
 			lastB = g[y][x]
 		}
 		if lastC > 1 {

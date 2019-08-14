@@ -30,7 +30,7 @@ func main() {
 	go hub.Run()
 
 	log.SetFlags(log.LstdFlags)
-
+	
 	// websocket
 	http.HandleFunc("/echo", golWs(golHub, banner))
 	http.HandleFunc("/message", messaging.WsHandler(hub))
