@@ -137,7 +137,7 @@ let fgcolor = 0xFFFFFFFF;
 let activatecolor = 0xEE82EEff; // violet
 let erasecolor = 0xFF0000FF;
 
-let bgcolorendian = 0x000000FF;
+let bgcolorendian = 0x00000000;
 let fgcolorendian = 0xFFFFFFFF;
 let activatecolorendian = 0xEE82EEff; // violet
 let erasecolorendian = 0xFF0000FF;
@@ -492,9 +492,20 @@ function sendClear() {
 
 let patterncanvas = document.getElementById('patternDrawer');
 
+let lastPageX = 0, lastPageY = 0;
 function repositionPatternCanvas(e) {
+    if(e.pageX === undefined) {
+        e.pageX = lastPageX;
+    }
+    if(e.pageY === undefined) {
+        e.pageY = lastPageY;
+    }
+
     patterncanvas.style.left = (e.pageX - Math.floor(patterncanvas.width / 2)) + "px";
     patterncanvas.style.top = (e.pageY - Math.floor(patterncanvas.height / 2)) + "px";
+
+    lastPageX = e.pageX;
+    lastPageY = e.pageY;
 }
 
 document.onmousemove = repositionPatternCanvas;
@@ -517,7 +528,7 @@ function keypresshandler(e) {
             rotatePattern(patternSelectedId);
             break;
     }
-    repositionPatternCanvas();
+    repositionPatternCanvas({});
 }
 
 let patterncontext = document.getElementById('patternDrawer').getContext('2d');
@@ -534,8 +545,8 @@ function selectPattern(id) {
     }
 
     let pattern = patterns[id];
-    patterncanvas.width = pattern[0].length;
-    patterncanvas.height = pattern.length;
+    patterncanvas.width = pattern[0].length * zoom;
+    patterncanvas.height = pattern.length * zoom;
     for (let y = 0; y < pattern.length; y++) {
         for (let x = 0; x < pattern[y].length; x++) {
             patterncontext.fillStyle = 'transparent';
@@ -544,9 +555,10 @@ function selectPattern(id) {
             } else if (pattern[y][x] === -1) {
                 patterncontext.fillStyle = `#${erasecolor.toString(16)}`;
             }
-            patterncontext.fillRect(x, y, 1, 1);
+            patterncontext.fillRect(x * zoom, y * zoom, zoom, zoom);
         }
     }
+    repositionPatternCanvas({});
 }
 
 function applyPattern(pos_x, pos_y) {
@@ -565,8 +577,22 @@ function applyPattern(pos_x, pos_y) {
             }
         }
     }
-    draw()
 }
+
+canvas.onwheel = function(e) {
+    if(e.deltaY < 0) {
+        zoom ++;
+    }
+    if(e.deltaY > 0) {
+        zoom --;
+        if (zoom <= 1) {
+            zoom = 1;
+        }
+    }
+    selectPattern(patternSelectedId);
+    e.preventDefault();
+    draw();
+};
 
 canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
@@ -581,6 +607,7 @@ function onCanvasOver(e) {
     if (patternSelectedId === 0) {
         handleMovement(e, x, y);
     }
+    let projected = projectOnMap(x, y);
 
     let isClick = e.buttons === 1 || e.buttons === 3;
 
@@ -616,8 +643,8 @@ function handleMovement(e, x, y) {
         return
     }
     if (e.type === "mousemove" && e.buttons !== 0) {
-        viewportX += x - lastx;
-        viewportY += y - lasty;
+        viewportX += (x - lastx) / zoom;
+        viewportY += (y - lasty) / zoom;
         lastx = x;
         lasty = y;
     }
@@ -643,34 +670,55 @@ function getMousePos(canvas, evt) {
 
 function projectOnMap(x, y) {
     return {
-        x: ((x - viewportX) % width + width) % width,
-        y: ((y - viewportY) % height + height) % height,
+        x: ((~~((x - canvas.width/2)/zoom - viewportX)) % width + width) % width,
+        y: ((~~((y - canvas.height/2)/zoom - viewportY)) % height + height) % height,
     }
 }
 
-let viewportX = 0;
-let viewportY = 0;
+function unproject(x, y) {
+    return {
+        x: ((x + viewportX) % width + width) % width,
+        y: ((y + viewportY) % height + height) % height,
+    }
+}
+
+let viewportX = -400;
+let viewportY = -400;
 let zoom = 1;
 
 let image;
 let data32;
 
 function draw() {
+    context.fillStyle = 'transparent';
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
-    let x = ~~((-viewportX % width) + width) % width;
+    let x = ~~(((-viewportX - canvas.width/(2*zoom)) % width ) + width) % width;
     let startx = x;
-    let y = ~~((-viewportY % height) + height) % height;
+    let y = ~~(((-viewportY - canvas.height/(2*zoom)) % height ) + height) % height;
     let color;
     let scan = 0;
+    let zoomscanx = 0;
+    let zoomscany = 0;
 
-    for (let i = 0, l = data32.length; i < l; i++, scan++, x++) {
-        if (x === width) {
-            x = 0;
+    for (let i = 0, l = data32.length; i < l; i++, scan++, zoomscanx++) {
+        if (zoomscanx === zoom) {
+            x++;
+            zoomscanx = 0;
+        }
+        if (x >= width) {
+            x -= width;
         }
         if (scan === width) {
             scan = 0;
             x = startx;
-            y = (y + 1) % height;
+            zoomscany++;
+            zoomscanx = 0;
+            if(zoomscany === zoom) {
+                y++;
+                zoomscany = 0;
+            }
+            y = y % height;
         }
 
         /*
@@ -694,6 +742,18 @@ function draw() {
         data32[i] = color;
     }
 
+    // let y1 = unproject(0, 0).y;
+    // context.fillStyle = "#aaaaaa";
+    //
+    // for (let i = 0 ; i < height / 100 ; i++) {
+    //     let y1 = unproject(0, i*100).y;
+    //     context.fillRect(0, y1 % height, canvas.width, 1);
+    // }
+    //
+    // for (let i = 0 ; i < width / 100 ; i++) {
+    //     let x1 = unproject(i*100, 0).x;
+    //     context.fillRect(x1 % width, 0, 1, canvas.height);
+    // }
     context.putImageData(image, 0, 0);
 }
 
