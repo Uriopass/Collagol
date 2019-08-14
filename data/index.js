@@ -82,15 +82,6 @@ function initRLEs() {
 function initConfig(config) {
     height = config.height;
     width = config.width;
-
-    canvas.width = screen.width;
-    canvas.height = screen.height;
-
-    console.log(canvas.width, canvas.height);
-
-    image = context.createImageData(canvas.width, canvas.height);
-    data32 = new Uint32Array(image.data.buffer);
-
     console.log(config);
 
     grid = new Array(height);
@@ -136,6 +127,12 @@ let width = -1;
 let grid;
 let initOk = false;
 let canvas = document.getElementById('gridContainer');
+canvas.width = screen.width;
+canvas.height = screen.height;
+
+image = context.createImageData(canvas.width, canvas.height);
+data32 = new Uint32Array(image.data.buffer);
+
 
 // RGBA format
 let bgcolor = 0x000000FF;
