@@ -491,15 +491,7 @@ function disableFor1Min() {
 
 function sendClear() {
     disableFor1Min();
-    let tosend = [];
-    let todel = [];
-
-    for (let i = 0; i < height; i++) {
-        for (let j = 0; j < width; j++) {
-            todel.push([j, i]);
-        }
-    }
-    ws.send(JSON.stringify([tosend, todel]));
+    ws.send(JSON.stringify([[], [[-1, -1]]]));
 }
 
 let patterncanvas = document.getElementById('patternDrawer');
