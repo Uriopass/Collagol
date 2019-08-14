@@ -70,6 +70,14 @@ func newGolState(config config) *golState {
 }
 
 func (gs *golState) setPositions(points []point, value int) {
+	if len(points) == 1 && points[0][0] == -1 {
+		for i := 0; i < gs.height; i++ {
+			for j := 0 ; j < gs.width ; j++ {
+				gs.grid[i][j] = gridType(value)
+			}
+		}
+		return
+	}
 	for _, p := range points {
 		x := p[0]
 		y := p[1]
