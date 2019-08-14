@@ -3,6 +3,7 @@ body {
     font-family: "helvetica", serif;
     color: white;
     margin: 0;
+    overflow: hidden;
 }
 
 #patternDrawer {
@@ -13,9 +14,10 @@ body {
 
 #connected {
     width: 100%;
-    border: 1px gray solid;
+    border: 1px #333333 solid;
     margin: 2px;
     border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.50);
 }
 
 #connected p {
@@ -31,32 +33,30 @@ a {
 }
 
 #bottomMessage {
-    width: 50%;
     border-radius: 5px;
-    border: 1px solid #bbb;
+    border: 1px solid #333333;
     text-align: center;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
+    width: 98%;
+    margin-top: 10px;
+    background-color: rgba(0, 0, 0, 0.50);
 }
 
 #game {
     width: 100%;
-    /*max-width: 1400px;*/
     margin: auto;
     text-align: center;
-    /*display: flex;*/
 }
 
 #controls {
-    width: 20%;
+    width: 15%;
     padding: 10px;
     float: right;
     position: absolute;
     right: 10px;
     top: 50px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 90%;
 }
 
 #gridContainer {
@@ -66,17 +66,30 @@ a {
     z-index: -1;
 }
 
-#chatbox {
+#leftPanel {
     float: left;
     width: 20%;
-    border: 1px white solid;
-    height: 700px;
-    border-radius: 3px;
+    height: 100%;
+    top: 0;
+    left: 0;
     position: absolute;
+    overflow-y: auto;
+    padding-left: 10px;
+    scrollbar-width: none;
+}
+
+#leftPanel::-webkit-scrollbar {
+    display: none;
+}
+
+#chatbox {
+    border: 1px #333333 solid;
+    border-radius: 3px;
     text-align: left;
-    margin-right: 10px;
-    top: 50px;
-    left: 10px;
+    height: 70%;
+    width: 98%;
+    margin-top: 50px;
+    background-color: rgba(0, 0, 0, 0.50);
 }
 
 .messageinput {
@@ -85,7 +98,7 @@ a {
     padding: 0 0 0 5px;
     border: 0;
     background: transparent;
-    border-top: 1px solid #6d6d6d;
+    border-top: 1px solid #333333;
     color: white;
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box; /* Firefox, other Gecko */
@@ -94,7 +107,6 @@ a {
 
 #sendDiv {
     height: 50%;
-    border-top: 1px solid #6d6d6d;
     display: flex;
     box-shadow: none;
     -webkit-box-shadow: none;
@@ -120,8 +132,15 @@ input::placeholder {
     color: #d2d2d2;
 }
 
+textarea {
+    background-color: rgba(72,72,72,0.8);
+    color: white;
+    border: none;
+}
+
 textarea::placeholder {
     font-style: italic;
+    color: white;
 }
 
 h2 {
@@ -142,9 +161,13 @@ h2 {
     overflow-y: scroll;
 }
 
+#messages::-webkit-scrollbar {
+    display: none;
+}
+
 #messages li {
     list-style-type: none;
-    border: 1px solid rgb(60, 60, 60);
+    border: 1px solid transparent;
     word-wrap: break-word;
     line-height: 25px;
     padding: 5px 5px 5px 10px;
@@ -153,7 +176,7 @@ h2 {
 }
 
 #messages li:nth-child(even) {
-    background-color: #383838;
+    background-color: rgba(56, 56, 56, 0.50);
 }
 
 .brush {
@@ -166,7 +189,7 @@ h2 {
     height: 15px;
     background-size: 100% 100%;
     background-image: url("delete.png");
-    right: -25px;
+    right: 15px;
     top: 10px;
     margin: auto;
     z-index: 10;
@@ -174,7 +197,7 @@ h2 {
 }
 
 #clearBoard {
-    background-color: #ffb0b6;
+    background-color: rgba(44, 26, 30, 0.8);
 
     box-shadow: none;
     -webkit-box-shadow: none;
@@ -182,24 +205,38 @@ h2 {
 }
 
 #clearBoard:disabled {
-    background: #50302e;
+    background: rgba(47, 23, 23, 0.5);
     color: gray;
+}
+
+#clearBoard:disabled:hover {
+    background: rgba(47, 23, 23, 0.5);
+    color: gray;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+
+#clearBoard:hover {
+    -webkit-box-shadow: inset 0 0 1px 1px #eaeaea;
+    box-shadow: inset 0 0 1px 1px #eaeaea;
+}
+
+#clearBoard:active {
+    color: white;
 }
 
 .minimal {
     position: relative;
-    background: white;
-    border: 1px solid #555;
+    background: rgba(18, 18, 18, 0.8);
+    border: 1px solid #333333;
     border-radius: 3px;
-    -webkit-box-shadow: inset 0 0 1px 1px #f6f6f6;
-    box-shadow: inset 0 0 1px 1px #f6f6f6;
-    color: #333;
-    font: bold 0.9em/1 "helvetica neue", helvetica, arial, sans-serif;
+    color: #ffffff;
+    font: 0.9em/1 "helvetica neue", helvetica, arial, sans-serif;
     padding: 8px 0 9px;
     text-align: center;
-    text-shadow: 0 1px 0 #fff;
     width: 100%;
-    margin: 2px 0;
+    margin: 3px 0;
 }
 
 .minimal:disabled {
@@ -219,16 +256,13 @@ h2 {
 }
 
 .minimal:hover {
-    background: #e9e9e9;
     -webkit-box-shadow: inset 0 0 1px 1px #eaeaea;
     box-shadow: inset 0 0 1px 1px #eaeaea;
-    color: #222;
     cursor: pointer;
 }
 
 .minimal:active {
-    background: #d0d0d0;
+    background: #434343;
     -webkit-box-shadow: inset 0 0 1px 1px #e3e3e3;
     box-shadow: inset 0 0 1px 1px #e3e3e3;
-    color: #000;
 }

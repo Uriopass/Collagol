@@ -12,29 +12,35 @@
         </div>
         <b><i><p id="errorMessage" style="text-align: center; color: red; font-size: 1em; margin: 0;"></p></i></b>
         <div id="game">
-            <div id="chatbox">
-                <ul id="messages">
-                </ul>
-                <div id="chatboxUserinfo">
-                    <div id="sendDiv">
-                        <input placeholder="Enter your message here" id="messageText" class="messageinput" type="text"
-                               onkeydown="if(event.key==='Enter') sendMessage();"/>
-                        <button class="minimal" type="text" onclick="sendMessage()">Send </button>
+            <div id="leftPanel">
+                <div id="chatbox">
+                    <ul id="messages">
+                    </ul>
+                    <div id="chatboxUserinfo">
+                        <div id="sendDiv">
+                            <input placeholder="Enter your message here" id="messageText" class="messageinput" type="text"
+                                   onkeydown="if(event.key==='Enter') sendMessage();"/>
+                            <button class="minimal" type="text" onclick="sendMessage()">Send </button>
+                        </div>
+                        <input placeholder="Enter your username here" id="usernameText" class="messageinput" type="text"/>
                     </div>
-                    <input placeholder="Enter your username here" id="usernameText" class="messageinput" type="text"/>
+                </div>
+
+                <div id="bottomMessage">
+                    <p>This project is open source, check it out on <a href="http://github.com/Uriopass/Collagol">Github</a>!</p>
+                    <p><b>Shortcuts:</b></p>
+                    <p><b>X</b> - Flip pattern horizontally<br>
+                        <b>Y</b> - Flip pattern vertically<br >
+                        <b>R</b> - Rotate pattern clockwise</p>
                 </div>
             </div>
             <div id="controls">
                 <div id="connected">
                     <p><span id="connectedN">?</span> users online</p>
                 </div>
-                <button class="minimal" id="sendPattern" onclick="sendHandler()" style="width:50%" disabled>Send pattern</button>
-                <button class="minimal" id="clearPattern" onclick="clearButtonHandler()" style="width:40%" disabled>Clear pattern</button>
-                <div style="width: 100%">
-                    <input type="checkbox" id="sendOnRelease" onchange="changeAutoSendHandler()" checked> Auto send on click
-                </div>
+
                 <div style="width: 100%; text-align: center">
-                    <h2>Brushes</h2>
+                    <h2>Tools / Patterns</h2>
                 </div>
                 <button class="minimal" onclick="selectPattern(0)">✋ Hand</button>
                 <button class="minimal" onclick="selectPattern(1)">✏️ Pen</button>
@@ -46,21 +52,19 @@
                 <button class="minimal" onclick="selectPattern(7)">MWSS Gun</button>
                 <button class="minimal" onclick="selectPattern(8)">Max Space Filler</button>
                 <button id="clearBoard" class="minimal" onclick="sendClear()">Clear the board</button>
-                <div style="width: 100%; text-align: center"><h2>Custom Brushes</h2></div>
+                <div style="width: 100%; text-align: center"><h2>Custom Patterns</h2></div>
                 <div id="customBrushes"></div>
-                <textarea id="rletext" style="width:100%; max-width: 100%; height: 100px;"
+                <textarea id="rletext" style="width:100%; max-width: 100%; height: 100px; min-width: 100%;"
                           placeholder="Use the #N comment metadata from the RLE format to name your brush"></textarea>
                 <button class="minimal" onclick="parseRLEClickHandler()">Parse RLE pattern</button>
                 <div>A list of patterns can be found &nbsp; <a href="https://copy.sh/life/examples/"><b>HERE</b></a></div>
-
+                <br />
+                <button class="minimal" id="sendPattern" onclick="sendHandler()" style="width:50%" disabled>Send pattern</button>
+                <button class="minimal" id="clearPattern" onclick="clearButtonHandler()" style="width:40%" disabled>Clear pattern</button>
+                <div style="width: 100%">
+                    <input type="checkbox" id="sendOnRelease" onchange="changeAutoSendHandler()" checked> Auto send on click
+                </div>
             </div>
-        </div>
-        <div id="bottomMessage">
-            <p>This project is open source, check it out on <a href="http://github.com/Uriopass/Collagol">Github</a>!</p>
-            <p><b>Shortcuts:</b></p>
-            <p><b>X</b> - Flip pattern horizontally<br>
-                <b>Y</b> - Flip pattern vertically<br >
-                <b>R</b> - Rotate pattern clockwise</p>
         </div>
 
 
