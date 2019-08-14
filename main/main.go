@@ -65,7 +65,6 @@ func main() {
 		log.Fatal(http.ListenAndServe(":80", nil))
 	} else {
 		isSecure = true
-		go log.Fatal(http.ListenAndServe(":80", http.HandlerFunc(redirectToHTTPS)))
 		log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/collagol.douady.paris/fullchain.pem", "/etc/letsencrypt/live/collagol.douady.paris/privkey.pem", nil))
 	}
 }
