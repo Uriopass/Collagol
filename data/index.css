@@ -2,6 +2,7 @@ body {
     background-color: rgb(50, 50, 50);
     font-family: "helvetica", serif;
     color: white;
+    margin: 0;
 }
 
 #patternDrawer {
@@ -34,42 +35,35 @@ a {
     border-radius: 5px;
     border: 1px solid #bbb;
     text-align: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     margin: auto;
 }
 
 #game {
     width: 100%;
-    max-width: 1400px;
+    /*max-width: 1400px;*/
     margin: auto;
     text-align: center;
-    display: flex;
+    /*display: flex;*/
 }
 
 #controls {
     width: 20%;
     padding: 10px;
     float: right;
+    position: absolute;
+    right: 10px;
+    top: 50px;
 }
 
 #gridContainer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     width: 100%;
-}
-
-#gameCanvas {
-    width: 60%;
-    position: relative;
-    padding-bottom: 10px;
-}
-
-#gameCanvas:before {
-    content: "";
-    display: block;
-    padding-top: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -1;
 }
 
 #chatbox {
@@ -78,9 +72,11 @@ a {
     border: 1px white solid;
     height: 700px;
     border-radius: 3px;
-    position: relative;
+    position: absolute;
     text-align: left;
     margin-right: 10px;
+    top: 50px;
+    left: 10px;
 }
 
 .messageinput {

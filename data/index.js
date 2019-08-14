@@ -8,6 +8,7 @@ function initws() {
     ws.onopen = function () {
         document.getElementById("errorMessage").innerText = "";
         console.log("OPEN");
+        userAction().then(data => initConfig(data));
     };
     ws.onclose = function (evt) {
         console.log("CLOSE");
@@ -82,7 +83,12 @@ function initConfig(config) {
     height = config.height;
     width = config.width;
 
-    image = context.createImageData(width, height);
+    canvas.width = screen.width;
+    canvas.height = screen.height;
+
+    console.log(canvas.width, canvas.height);
+
+    image = context.createImageData(canvas.width, canvas.height);
     data32 = new Uint32Array(image.data.buffer);
 
     console.log(config);
@@ -690,6 +696,9 @@ let image;
 let data32;
 
 function draw() {
+    if (!initOk) {
+        return
+    }
     context.fillStyle = 'transparent';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -700,6 +709,7 @@ function draw() {
     let scan = 0;
     let zoomscanx = 0;
     let zoomscany = 0;
+    let W = canvas.width;
 
     for (let i = 0, l = data32.length; i < l; i++, scan++, zoomscanx++) {
         if (zoomscanx === zoom) {
@@ -709,7 +719,7 @@ function draw() {
         if (x >= width) {
             x -= width;
         }
-        if (scan === width) {
+        if (scan === W) {
             scan = 0;
             x = startx;
             zoomscany++;

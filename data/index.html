@@ -6,8 +6,11 @@
         <title>Collagol - Collaborative Game of Life</title>
     </head>
     <body>
-        <h1 style="text-align: center"><b>Collagol</b> - Collaborative Game of Life</h1>
-        <b><i><p id="errorMessage" style="text-align: center; color: red; font-size: 1em"></p></i></b>
+        <canvas id="gridContainer" width="0" height="0"></canvas>
+        <div style="position: absolute; left: 0; right: 0; margin: auto;">
+            <h1 style="text-align: center"><b>Collagol</b> - Collaborative Game of Life</h1>
+        </div>
+        <b><i><p id="errorMessage" style="text-align: center; color: red; font-size: 1em; margin: 0;"></p></i></b>
         <div id="game">
             <div id="chatbox">
                 <ul id="messages">
@@ -20,9 +23,6 @@
                     </div>
                     <input placeholder="Enter your username here" id="usernameText" class="messageinput" type="text"/>
                 </div>
-            </div>
-            <div id="gameCanvas">
-                <canvas id="gridContainer" width="800" height="800"></canvas>
             </div>
             <div id="controls">
                 <div id="connected">
@@ -55,7 +55,6 @@
 
             </div>
         </div>
-        <hr/>
         <div id="bottomMessage">
             <p>This project is open source, check it out on <a href="http://github.com/Uriopass/Collagol">Github</a>!</p>
             <p><b>Shortcuts:</b></p>
