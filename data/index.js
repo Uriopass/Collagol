@@ -5,7 +5,7 @@ let connectedWs;
 function initws() {
     ws = new WebSocket("ws://" + document.location.host + "/echo");
 
-    ws.onopen = function (evt) {
+    ws.onopen = function () {
         document.getElementById("errorMessage").innerText = "";
         console.log("OPEN");
     };
@@ -26,7 +26,7 @@ function initws() {
 
         receive(evt.data);
     };
-    ws.onerror = function (evt) {
+    ws.onerror = function () {
         document.getElementById("errorMessage").innerText = "Couldn't connect to the server"
     };
 }
@@ -36,11 +36,11 @@ function initChatroom() {
 
     let messageDiv = document.getElementById("messages");
     messageWs = new WebSocket("ws://" + document.location.host + "/message");
-    messageWs.onopen = function (evt) {
+    messageWs.onopen = function () {
         console.log("OPEN");
         messageDiv.innerHTML = "";
     };
-    messageWs.onclose = function (evt) {
+    messageWs.onclose = function () {
         console.log("Lost connection to chat retrying...");
         setTimeout(function () {
             initChatroom()
@@ -59,7 +59,7 @@ function initConnected() {
     let connectedDiv = document.getElementById("connectedN");
 
     connectedWs = new WebSocket("ws://" + document.location.host + "/connected");
-    connectedWs.onclose = function (evt) {
+    connectedWs.onclose = function () {
         setTimeout(function () {
             initConnected()
         }, 2000);
@@ -81,16 +81,18 @@ function initRLEs() {
 function initConfig(config) {
     height = config.height;
     width = config.width;
-    cellSize = config.cellSize;
 
-    canvas.width = width * cellSize;
-    canvas.height = height * cellSize;
+    image = context.createImageData(width, height);
+    data32 = new Uint32Array(image.data.buffer);
+
+    canvas.width = width;
+    canvas.height = height;
 
     console.log(config);
 
     grid = new Array(height);
     for (let i = 0; i < height; i++) {
-        grid[i] = new Array(width);
+        grid[i] = new Uint8Array(width);
         for (let j = 0; j < height; j++) {
             grid[i][j] = 0;
         }
@@ -100,7 +102,7 @@ function initConfig(config) {
     initOk = true;
 }
 
-window.addEventListener("load", function (evt) {
+window.addEventListener("load", function () {
     disableFor1Min();
     initChatroom();
     initws();
@@ -130,7 +132,6 @@ let height = -1;
 let width = -1;
 let grid;
 let initOk = false;
-let cellSize = -1;
 let canvas = document.getElementById('gridContainer');
 
 // RGBA format
@@ -164,6 +165,7 @@ if (isLittleEndian) {
 
 
 patterns = [
+    [],
     [
         [1]
     ],
@@ -419,10 +421,8 @@ function resetGrids() {
         for (let j = 0; j < width; j++) {
             if (grid[i][j] === 2) {
                 grid[i][j] = 0;
-                redrawCell(j, i, "");
             } else if (grid[i][j] === 3) {
                 grid[i][j] = 0;
-                redrawCell(j, i, "");
             }
         }
     }
@@ -462,7 +462,6 @@ function mouseUpHandler() {
             if (grid[i][j] === 3) {
                 todel.push([j, i]);
                 grid[i][j] = 0;
-                redrawCell(j, i, "")
             }
         }
     }
@@ -531,9 +530,15 @@ function selectPattern(id) {
     patterncontext.clearRect(0, 0, 800, 800);
     patternSelectedId = id;
 
+    if (id <= 0) {
+        patterncanvas.width = 0;
+        patterncanvas.height = 0;
+        return;
+    }
+
     let pattern = patterns[id];
-    patterncanvas.width = pattern[0].length * cellSize;
-    patterncanvas.height = pattern.length * cellSize;
+    patterncanvas.width = pattern[0].length;
+    patterncanvas.height = pattern.length;
     for (let y = 0; y < pattern.length; y++) {
         for (let x = 0; x < pattern[y].length; x++) {
             patterncontext.fillStyle = 'transparent';
@@ -542,7 +547,7 @@ function selectPattern(id) {
             } else if (pattern[y][x] === -1) {
                 patterncontext.fillStyle = `#${erasecolor.toString(16)}`;
             }
-            patterncontext.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            patterncontext.fillRect(x, y, 1, 1);
         }
     }
 }
@@ -551,8 +556,8 @@ function applyPattern(pos_x, pos_y) {
     let pattern = patterns[patternSelectedId];
     for (let y = 0; y < pattern.length; y++) {
         for (let x = 0; x < pattern[y].length; x++) {
-            let X = x + pos_x;
-            let Y = y + pos_y;
+            let X = ((x + pos_x) % width + width) % width;
+            let Y = ((y + pos_y) % height + height) % height;
             if (X < 0 || X >= width || Y < 0 || Y >= height) {
                 continue;
             }
@@ -560,12 +565,10 @@ function applyPattern(pos_x, pos_y) {
                 grid[Y][X] = 2;
             } else if (pattern[y][x] === -1) {
                 grid[Y][X] = 3;
-            } else {
-                continue;
             }
-            redrawCell(X, Y);
         }
     }
+    draw()
 }
 
 canvas.onmousedown = onCanvasOver;
@@ -575,8 +578,12 @@ let context = document.getElementById('gridContainer').getContext('2d');
 
 function onCanvasOver(e) {
     let pos = getMousePos(canvas, e);
-    let x = Math.floor(pos.x / cellSize);
-    let y = Math.floor(pos.y / cellSize);
+    let x = Math.floor(pos.x);
+    let y = Math.floor(pos.y);
+
+    if (patternSelectedId === 0) {
+        handleMovement(e, x, y);
+    }
 
     let isClick = e.buttons === 1 || e.buttons === 3;
 
@@ -587,13 +594,33 @@ function onCanvasOver(e) {
         } else {
             grid[y][x] = 0;
         }
-        redrawCell(x, y);
         return
     }
 
-    if (e.type === "mousedown" || (isClick && patternSelectedId <= 1)) {
-        applyPattern(x - Math.floor(patterncanvas.width / 2 / cellSize), y - Math.floor(patterncanvas.height / 2 / cellSize));
+    if (e.type === "mousedown" || (isClick && patternSelectedId <= 2)) {
+        x -= Math.floor(patterncanvas.width / 2);
+        y -= Math.floor(patterncanvas.height / 2);
+        let projected = projectOnMap(x, y);
+
+        applyPattern(projected.x, projected.y);
     }
+}
+
+let lastx, lasty;
+
+function handleMovement(e, x, y) {
+    if (e.type === "mousedown") {
+        lastx = x;
+        lasty = y;
+        return
+    }
+    if (e.type === "mousemove" && e.buttons !== 0) {
+        viewportX += x - lastx;
+        viewportY += y - lasty;
+        lastx = x;
+        lasty = y;
+    }
+    draw();
 }
 
 function changeAutoSendHandler() {
@@ -601,27 +628,6 @@ function changeAutoSendHandler() {
     d.disabled = !d.disabled;
     let d2 = document.getElementById('clearPattern');
     d2.disabled = !d2.disabled;
-}
-
-function redrawCell(x, y, color) {
-    if (x < 0 || y < 0 || x >= width || y >= height) {
-        return
-    }
-    if (color === undefined || color === "") {
-        let cell = grid[y][x];
-        if (cell === 3) {
-            color = erasecolor;
-        } else if (cell === 2) {
-            color = activatecolor;
-        } else if (cell === 1) {
-            color = fgcolor;
-        } else {
-            color = bgcolor;
-        }
-    }
-    context.fillStyle = `#${color.toString(16)}`;
-    context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-
 }
 
 function getMousePos(canvas, evt) {
@@ -634,18 +640,44 @@ function getMousePos(canvas, evt) {
     };
 }
 
+function projectOnMap(x, y) {
+    return {
+        x: ((x - viewportX) % width + width) % width,
+        y: ((y - viewportY) % height + height) % height,
+    }
+}
+
+let viewportX = 0;
+let viewportY = 0;
+let zoom = 1;
+
+let image;
+let data32;
+
 function draw() {
-    let image = context.createImageData(width * cellSize, height * cellSize);
 
-    let data32 = new Uint32Array(image.data.buffer);
-
-    let x = 0,
-        y = 0;
+    let x = ~~((-viewportX % width) + width) % width;
+    let startx = x;
+    let y = ~~((-viewportY % height) + height) % height;
     let color;
-    for (let i = 0; i < data32.length; i++) {
-        let lul = ~~(i / cellSize);
-        x = lul % width;
-        y = ~~(lul / (width * cellSize));
+    let scan = 0;
+
+    for (let i = 0, l = data32.length; i < l; i++, scan++, x++) {
+        if (x === width) {
+            x = 0;
+        }
+        if (scan === width) {
+            scan = 0;
+            x = startx;
+            y = (y + 1) % height;
+        }
+
+        /*
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            data32[i] = 0xFF555555;
+            continue;
+        }
+         */
 
         let cell = grid[y][x];
         if (cell === 1) {
@@ -729,7 +761,7 @@ function decode(string) {
 
     let grid = new Array(height + 1);
     for (let i = 0; i < grid.length; i++) {
-        grid[i] = new Array(width);
+        grid[i] = new Uint8Array(width);
         for (let j = 0; j < grid[i].length; j++) {
             grid[i][j] = 0;
         }
@@ -827,7 +859,7 @@ function rotatePattern(id) {
 
     let patCopy = new Array(pattern[0].length);
     for (let y = 0; y < patCopy.length; y++) {
-        patCopy[y] = new Array(pattern.length);
+        patCopy[y] = new Uint8Array(pattern.length);
         for (let x = 0; x < patCopy[y].length; x++) {
             patCopy[y][x] = pattern[patCopy[y].length - 1 - x][y];
         }
