@@ -38,14 +38,14 @@ func golWs(state *golHub, banner *banner) func(w http.ResponseWriter, r *http.Re
 			log.Print("upgrade:", err)
 			return
 		}
-		log.Println("Upgraded conn from ", remoteaddr)
+		log.Println("Upgraded conn from ", remoteaddr, " with origin ", r.Header.Get("Origin"))
 
 		id := counter.Inc()
 		out := state.subscribe(int(id))
 		banner.register(remoteaddr, int(id))
 
 		c.SetCloseHandler(func(code int, text string) error {
-			log.Println("Unsubscribing")
+			log.Println("Unsubscribing ", remoteaddr)
 			banner.disconnect(remoteaddr)
 			state.unSubscribe(int(id))
 			return nil
