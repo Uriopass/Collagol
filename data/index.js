@@ -105,9 +105,12 @@ window.addEventListener("load", function () {
 });
 
 function sendMessage() {
-    let val = document.getElementById("messageText").value.trim();
+    let messageTextEl = document.getElementById("messageText");
+    let val = messageTextEl.value.trim();
+    messageTextEl.value = "";
+    messageTextEl.blur();
+
     let username = document.getElementById("usernameText").value;
-    document.getElementById("messageText").value = "";
     if (val.length > 0) {
         messageWs.send(`${username}: ${val}`);
     }
