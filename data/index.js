@@ -85,9 +85,6 @@ function initConfig(config) {
     image = context.createImageData(width, height);
     data32 = new Uint32Array(image.data.buffer);
 
-    canvas.width = width;
-    canvas.height = height;
-
     console.log(config);
 
     grid = new Array(height);
@@ -587,7 +584,11 @@ function onCanvasOver(e) {
 
     let isClick = e.buttons === 1 || e.buttons === 3;
 
-    if (isClick && e.type === "mousedown" && patternSelectedId === 0) {
+    if (isClick && e.type === "mousedown" && patternSelectedId === 1) {
+        let projected = projectOnMap(x, y);
+        x = projected.x;
+        y = projected.y;
+
         let val = grid[y][x];
         if (val < 2) {
             grid[y][x] = 2;
