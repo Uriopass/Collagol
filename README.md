@@ -10,15 +10,15 @@ Front and back communicate through a websocket, each update sends the entire wor
 ## TODO
 
 Sorted by priority:
- * Bigger world (requires hashlife or a sufficient design)
- * Implement Hashlife/Fast updater
- * Translation and scroll
  * Better mobile support / responsive design
  * RLE Sharing
  * Temporary RLE
  * Identify which cells was placed by player
 
 Done:
+ * ~Bigger world~
+ * ~Implement Hashlife/Fast updater~
+ * ~Translation and scroll~
  * ~Optimized networking~
  * ~One IP at a time only~
  * ~Redo CSS to support more resolutions~
