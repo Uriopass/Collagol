@@ -10,8 +10,8 @@ Front and back communicate through a websocket, each update sends the entire wor
 ## TODO
 
 Sorted by priority:
- * Better mobile support / responsive design
  * RLE Sharing
+ * Smarter zoom on region
  * Temporary RLE
  * Identify which cells was placed by player
 
@@ -20,6 +20,7 @@ Done:
  * ~Implement Hashlife/Fast updater~
  * ~Translation and scroll~
  * ~Optimized networking~
+ * ~Better mobile support / responsive design~
  * ~One IP at a time only~
  * ~Redo CSS to support more resolutions~
  * ~Shortcuts for rotation and flipping~
