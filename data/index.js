@@ -102,7 +102,23 @@ window.addEventListener("load", function () {
     initws();
     initRLEs();
     initConnected();
+    readUrl();
 });
+
+function setUrlTo(x, y, zoom) {
+    window.history.replaceState(window.history.state, "", "?x="+x+"&y="+y+"&zoom="+zoom);
+}
+
+function readUrl() {
+    let url_string = window.location.href;
+    let url = new URL(url_string);
+    if (!url.searchParams.has("x")) {
+        return;
+    }
+    viewportX = parseInt(url.searchParams.get("x"));
+    viewportY = parseInt(url.searchParams.get("y"));
+    zoom = parseInt(url.searchParams.get("zoom"));
+}
 
 function sendMessage() {
     let messageTextEl = document.getElementById("messageText");
@@ -571,6 +587,7 @@ canvas.onwheel = function (e) {
     }
     lastYMove = -1;
     lastXMove = -1;
+    setUrlTo(~~viewportX, ~~viewportY, zoom);
     selectPattern(patternSelectedId);
     e.preventDefault();
     draw();
@@ -694,6 +711,7 @@ function handleMovement(e, x, y) {
         }
         lastx = x;
         lasty = y;
+        setUrlTo(~~viewportX, ~~viewportY, zoom);
     }
     draw();
 }
