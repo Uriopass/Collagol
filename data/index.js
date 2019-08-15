@@ -123,6 +123,11 @@ const userAction = async () => {
 
 userAction().then(data => initConfig(data));
 
+function resize() {
+    initCanvas(window.innerWidth, window.innerHeight);
+}
+
+window.onresize = resize;
 
 let height = -1;
 let width = -1;
@@ -565,6 +570,8 @@ canvas.onwheel = function(e) {
     draw();
 };
 
+canvas.ontouchstart = onCanvasOver;
+canvas.ontouchmove = onCanvasOver;
 canvas.onmousedown = onCanvasOver;
 canvas.onmousemove = onCanvasOver;
 canvas.onmouseup = mouseUpHandler;
@@ -573,19 +580,33 @@ canvas.oncontextmenu = function (e) {
 };
 
 let context = document.getElementById('gridContainer').getContext('2d');
-canvas.width = screen.width;
-canvas.height = screen.height;
+let image, data32;
 
-let image = context.createImageData(canvas.width, canvas.height);
-let data32 = new Uint32Array(image.data.buffer);
+function initCanvas(width, height) {
+    canvas.width = width;
+    canvas.height = height;
+
+    image = context.createImageData(canvas.width, canvas.height);
+    data32 = new Uint32Array(image.data.buffer);
+}
+
+initCanvas(screen.width, screen.height);
 
 function onCanvasOver(e) {
     e.preventDefault();
-    let pos = getMousePos(canvas, e);
+
+    let mouseEv = e;
+    if(e.type === "touchmove" || e.type === "touchstart") {
+        mouseEv = e.touches[0];
+    }
+
+    let pos = getMousePos(canvas, mouseEv);
     let x = Math.floor(pos.x);
     let y = Math.floor(pos.y);
 
-    if (patternSelectedId === 0 || e.buttons === 2 || e.buttons === 4) {
+    //console.log(e);
+
+    if (patternSelectedId === 0 || e.buttons === 2 || e.buttons === 4 || (patternSelectedId === 0 && (e.type === "touchmove" || e.type === "touchstart"))) {
         let messageTextEl = document.getElementById("messageText");
         messageTextEl.blur();
 
@@ -593,7 +614,8 @@ function onCanvasOver(e) {
         return;
     }
 
-    let isClick = e.buttons === 1 || e.buttons === 3;
+
+    let isClick = e.buttons === 1 || e.buttons === 3 || e.type === "touchstart";
 
     if (isClick && e.type === "mousedown" && patternSelectedId === 1) {
         let projected = projectOnMap(x, y);
@@ -609,7 +631,7 @@ function onCanvasOver(e) {
         return
     }
 
-    if (e.type === "mousedown" || (isClick && patternSelectedId <= 2)) {
+    if ((e.type === "mousedown" || e.type === "touchstart") || (isClick && patternSelectedId <= 2)) {
         x -= Math.floor(patterncanvas.width / 2);
         y -= Math.floor(patterncanvas.height / 2);
         let projected = projectOnMap(x, y);
@@ -621,12 +643,12 @@ function onCanvasOver(e) {
 let lastx, lasty;
 
 function handleMovement(e, x, y) {
-    if (e.type === "mousedown") {
+    if (e.type === "mousedown" || e.type === "touchstart") {
         lastx = x;
         lasty = y;
         return
     }
-    if (e.type === "mousemove" && e.buttons !== 0) {
+    if (e.type === "touchmove" || (e.type === "mousemove" && e.buttons !== 0)) {
         viewportX += (x - lastx) / zoom;
         viewportY += (y - lasty) / zoom;
         lastx = x;
