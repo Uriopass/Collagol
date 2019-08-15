@@ -140,11 +140,13 @@ let bgcolor = 0x000000FF;
 let fgcolor = 0xFFFFFFFF;
 let activatecolor = 0xEE82EEff; // violet
 let erasecolor = 0xFF0000FF;
+let holdcolor = 0x00FF00FF;
 
-let bgcolorendian = 0x00000000;
-let fgcolorendian = 0xFFFFFFFF;
-let activatecolorendian = 0xEE82EEff; // violet
-let erasecolorendian = 0xFF0000FF;
+let bgcolorendian = bgcolor;
+let fgcolorendian = fgcolor;
+let activatecolorendian = activatecolor;
+let erasecolorendian = erasecolor;
+let holdcolorendian = holdcolor;
 
 function swap32(val) {
     return ((val & 0xFF) << 24) |
@@ -158,10 +160,11 @@ test32[0] = 0x1;
 let isLittleEndian = new Uint8Array(test32.buffer)[0] > 0;
 
 if (isLittleEndian) {
-    bgcolorendian = swap32(bgcolor) >>> 0;
-    fgcolorendian = swap32(fgcolor) >>> 0;
-    activatecolorendian = swap32(activatecolor) >>> 0; // violet
-    erasecolorendian = swap32(erasecolor) >>> 0;
+    bgcolorendian = swap32(bgcolorendian) >>> 0;
+    fgcolorendian = swap32(fgcolorendian) >>> 0;
+    activatecolorendian = swap32(activatecolorendian) >>> 0; // violet
+    erasecolorendian = swap32(erasecolorendian) >>> 0;
+    holdcolorendian = swap32(holdcolorendian) >>> 0;
 }
 
 
@@ -467,11 +470,12 @@ function sendClear() {
 let patterncanvas = document.getElementById('patternDrawer');
 
 let lastPageX = 0, lastPageY = 0;
+
 function repositionPatternCanvas(e) {
-    if(e.pageX === undefined) {
+    if (e.pageX === undefined) {
         e.pageX = lastPageX;
     }
-    if(e.pageY === undefined) {
+    if (e.pageY === undefined) {
         e.pageY = lastPageY;
     }
 
@@ -486,7 +490,7 @@ document.onmousemove = repositionPatternCanvas;
 document.onkeypress = keypresshandler;
 
 function keypresshandler(e) {
-    if(e.path !== undefined) {
+    if (e.path !== undefined) {
         if (e.path[0].type !== undefined) {
             if (e.path[0].type.startsWith("text")) {
                 return
@@ -555,12 +559,12 @@ function applyPattern(pos_x, pos_y) {
     }
 }
 
-canvas.onwheel = function(e) {
-    if(e.deltaY < 0) {
-        zoom ++;
+canvas.onwheel = function (e) {
+    if (e.deltaY < 0) {
+        zoom++;
     }
-    if(e.deltaY > 0) {
-        zoom --;
+    if (e.deltaY > 0) {
+        zoom--;
         if (zoom <= 1) {
             zoom = 1;
         }
@@ -590,13 +594,31 @@ function initCanvas(width, height) {
     data32 = new Uint32Array(image.data.buffer);
 }
 
+function colorOf(value) {
+    if (value === 0) {
+        return '#' + bgcolor.toString(16).padStart(8, '0')
+    }
+    if (value === 1) {
+        return '#' + fgcolor.toString(16).padStart(8, '0')
+    }
+    if (value === 2) {
+        return '#' + activatecolor.toString(16).padStart(8, '0')
+    }
+    if (value === 3) {
+        return '#' + erasecolor.toString(16).padStart(8, '0')
+    }
+    return '#' + bgcolor.toString(16).padStart(8, '0')
+}
+
 initCanvas(screen.width, screen.height);
+
+let lastXMove = -1, lastYMove = -1;
 
 function onCanvasOver(e) {
     e.preventDefault();
 
     let mouseEv = e;
-    if(e.type === "touchmove" || e.type === "touchstart") {
+    if (e.type === "touchmove" || e.type === "touchstart") {
         mouseEv = e.touches[0];
     }
 
@@ -614,8 +636,19 @@ function onCanvasOver(e) {
         return;
     }
 
-
     let isClick = e.buttons === 1 || e.buttons === 3 || e.type === "touchstart";
+
+    if (!isClick) {
+        if (lastYMove >= 0 && lastXMove >= 0) {
+            redrawCell(lastXMove, lastYMove, colorOf(grid[lastYMove][lastXMove]));
+        }
+        let projected = projectOnMap(x, y);
+        x = projected.x;
+        y = projected.y;
+        lastXMove = x;
+        lastYMove = y;
+        redrawCell(x, y, '#' + holdcolor.toString(16).padStart(8, '0'));
+    }
 
     if (isClick && e.type === "mousedown" && patternSelectedId === 1) {
         let projected = projectOnMap(x, y);
@@ -632,9 +665,9 @@ function onCanvasOver(e) {
     }
 
     if ((e.type === "mousedown" || e.type === "touchstart") || (isClick && patternSelectedId <= 2)) {
-        x -= Math.floor(patterncanvas.width / 2);
-        y -= Math.floor(patterncanvas.height / 2);
-        let projected = projectOnMap(x, y);
+        let decx = x - patterncanvas.width / 2 + zoom / 2;
+        let decy = y - patterncanvas.height / 2 + zoom / 2;
+        let projected = projectOnMap(decx, decy);
 
         applyPattern(projected.x, projected.y);
     }
@@ -657,6 +690,26 @@ function handleMovement(e, x, y) {
     draw();
 }
 
+function redrawCell(x, y, color) {
+    let fuckx = (((-viewportX - canvas.width / (2 * zoom)) % width) + width) % width;
+    let fucky = (((-viewportY - canvas.height / (2 * zoom)) % height) + height) % height;
+
+    let upperLeftX = ~~fuckx;
+    let upperLeftY = ~~fucky;
+
+    let zoomscanx = ~~((fuckx - ~~fuckx) * zoom);
+    let zoomscany = ~~((fucky - ~~fucky) * zoom);
+
+    let decx = x - upperLeftX;
+    let decy = y - upperLeftY;
+
+    let starty = decy * zoom - zoomscany;
+    let startx = decx * zoom - zoomscanx;
+
+    context.fillStyle = color;
+    context.fillRect(startx, starty, zoom, zoom);
+}
+
 function changeAutoSendHandler() {
     let d = document.getElementById('sendPattern');
     d.disabled = !d.disabled;
@@ -676,8 +729,8 @@ function getMousePos(canvas, evt) {
 
 function projectOnMap(x, y) {
     return {
-        x: (~~((x - canvas.width/2)/zoom - viewportX) % width + width) % width,
-        y: (~~((y - canvas.height/2)/zoom - viewportY) % height + height) % height,
+        x: (~~((x - canvas.width / 2) / zoom - viewportX) % width + width) % width,
+        y: (~~((y - canvas.height / 2) / zoom - viewportY) % height + height) % height,
     }
 }
 
@@ -699,13 +752,17 @@ function draw() {
     context.fillStyle = 'transparent';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    let x = ~~(((-viewportX - canvas.width/(2*zoom)) % width ) + width) % width;
+    let fuckx = (((-viewportX - canvas.width / (2 * zoom)) % width) + width) % width;
+    let fucky = (((-viewportY - canvas.height / (2 * zoom)) % height) + height) % height;
+
+    let x = ~~fuckx;
     let startx = x;
-    let y = ~~(((-viewportY - canvas.height/(2*zoom)) % height ) + height) % height;
+    let y = ~~fucky;
     let color;
     let scan = 0;
-    let zoomscanx = 0;
-    let zoomscany = 0;
+    let zoomscanx = ~~((fuckx - x) * zoom);
+    let startzoomscanx = zoomscanx;
+    let zoomscany = ~~((fucky - y) * zoom);
     let W = canvas.width;
 
     for (let i = 0, l = data32.length; i < l; i++, scan++, zoomscanx++) {
@@ -720,8 +777,8 @@ function draw() {
             scan = 0;
             x = startx;
             zoomscany++;
-            zoomscanx = 0;
-            if(zoomscany === zoom) {
+            zoomscanx = startzoomscanx;
+            if (zoomscany === zoom) {
                 y++;
                 zoomscany = 0;
             }
@@ -742,6 +799,8 @@ function draw() {
             color = activatecolorendian;
         } else if (cell === 3) {
             color = erasecolorendian;
+        } else if (y === lastYMove && x === lastXMove) {
+            color = holdcolorendian;
         } else {
             color = bgcolorendian;
         }
