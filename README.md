@@ -12,6 +12,12 @@ Front and back communicate through a websocket, each update sends the entire wor
 Sorted by priority:
  * RLE Sharing
  * Smarter zoom on region
+ * Add timestamps for messages
+ * Show messages once they are downloaded
+ * Rename brushes
+ * Change eraser size dynamically
+ * Optimize update & network using tiles
+ * Fix cursor not aligned (overhaul projection/unprojection)
  * Temporary RLE
  * Identify which cells was placed by player
 
