@@ -17,11 +17,11 @@ Sorted by priority:
  * Rename brushes
  * Change eraser size dynamically
  * Optimize update & network using tiles
- * Fix cursor not aligned (overhaul projection/unprojection)
  * Temporary RLE
  * Identify which cells was placed by player
 
 Done:
+ * ~Fix cursor not aligned (overhaul projection/unprojection)~
  * ~Bigger world~
  * ~Implement Hashlife/Fast updater~
  * ~Translation and scroll~
