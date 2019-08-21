@@ -29,7 +29,7 @@ func golWs(state *golHub, banner *banner) func(w http.ResponseWriter, r *http.Re
 		IP = IP[:len(IP)-1]
 
 		remoteaddr := strings.Join(IP, ":")
-		if v, connected := banner.isConnected(remoteaddr) ; connected {
+		if v, connected := banner.isConnected(remoteaddr); connected {
 			state.unSubscribe(v)
 		}
 
@@ -100,7 +100,7 @@ func connectedWs(state *golHub) func(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				break
 			}
-			time.Sleep(1*time.Second)
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
