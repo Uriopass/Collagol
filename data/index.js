@@ -366,6 +366,12 @@ patterns = [
     ],
 ];
 
+lastTime = 0
+// sleep time expects milliseconds
+function sleep (time) {
+	  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 function receive(obj) {
     let C = 0;
     let x = 0;
@@ -402,8 +408,17 @@ function receive(obj) {
             x = 0;
         }
     }
-
-    draw();
+    
+   
+    let d = new Date();
+    let n = d.getTime();
+    let diff = n-lastTime;
+    lastTime = n;
+    if (diff < 200) {
+        sleep(200-diff).then(() => draw());
+    } else {
+        draw();
+    }
 }
 
 function resetGrids() {
