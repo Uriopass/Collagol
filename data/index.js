@@ -585,6 +585,7 @@ function applyPattern(pos_x, pos_y) {
                 grid[Y][X] = 2;
             } else if (pattern[y][x] === -1) {
                 grid[Y][X] = 3;
+                redrawCell(X, Y, '#' + erasecolor.toString(16).padStart(8, '0'));
             }
         }
     }
@@ -741,6 +742,12 @@ function redrawCell(x, y, color) {
     let zoomscanx = ~~((fuckx - ~~fuckx) * zoom);
     let zoomscany = ~~((fucky - ~~fucky) * zoom);
 
+    if (x < upperLeftX) {
+        x += width;
+    }
+    if (y < upperLeftY) {
+        y += height;
+    }
     let decx = x - upperLeftX;
     let decy = y - upperLeftY;
 
