@@ -83,6 +83,7 @@ function initConfig(config) {
     height = config.height;
     width = config.width;
     console.log(config);
+	resize();
 
     grid = new Array(height);
     for (let i = 0; i < height; i++) {
