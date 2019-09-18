@@ -63,6 +63,7 @@ func (rc *redisClient) getHistory() (timeMessages []timeMessage) {
 	strKeys, _ := redis.Strings(keys, nil)
 
 	for i, key := range strKeys {
+		if !strings.Contains(key, ":") { continue; }
 		value := values[i]
 		ts, _ := strconv.ParseInt(strings.Split(key, ":")[1], 10, 64)
 		timeMessages = append(timeMessages, timeMessage{
