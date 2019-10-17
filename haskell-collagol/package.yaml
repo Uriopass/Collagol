@@ -12,10 +12,13 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/Uriopass/Collagol#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+- base >= 4.7
 - containers
 - mtl
 - websockets
+- happstack-server
+- bytestring
+- case-insensitive
 
 executables:
   haskell-collagol-exe:
@@ -26,3 +29,4 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     - -W
+    - -Wno-unused-imports
