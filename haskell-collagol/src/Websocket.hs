@@ -25,16 +25,18 @@ import qualified Network.WebSockets            as WS
 import qualified Network.WebSockets.Connection as WS
 import qualified Network.WebSockets.Stream     as WS
 
+
 runWebSocketsHappstackWith :: (ServerMonad m, MonadIO m) => WS.ConnectionOptions -> WS.ServerApp -> m a
-runWebSocketsHappstackWith options app = do
+runWebSocketsHappstackWith = runWebSocketsHappstackDelayWith 25 -- keepalive every 25 seconds, can be changed in case timeout for TimeoutIO is not 30 seconds
+
+runWebSocketsHappstackDelayWith :: (ServerMonad m, MonadIO m) => Int -> WS.ConnectionOptions -> WS.ServerApp -> m a
+runWebSocketsHappstackDelayWith keepAlive options app = do
   req <- askRq
   escapeHTTP $ \timeoutIO -> do
-    putStrLn "calling makeStream"
     stream <- WS.makeStream (toGet timeoutIO) (maybe (pure ()) (toPutLazy timeoutIO))
-    putStrLn "have stream"
     let pc = WS.PendingConnection { WS.pendingOptions  = options
                                   , WS.pendingRequest  = mkRequestHead req
-                                  , WS.pendingOnAccept = forkPingThread
+                                  , WS.pendingOnAccept = forkPingThread keepAlive
                                   , WS.pendingStream   = stream
                                   }
     app pc `finally` WS.close stream
@@ -48,16 +50,15 @@ runWebSocketsHappstackWith options app = do
                                      }
 
 -- | a ping thread to keep the connection alive on some browsers
-forkPingThread :: WS.Connection -> IO ()
-forkPingThread connection = do
+forkPingThread :: Int -> WS.Connection -> IO ()
+forkPingThread keepAlive connection = do
   _ <- forkIO pingThread
   pure ()
  where
   pingThread :: IO ()
   pingThread = handle ignoreAll $ forever $ do
     WS.sendPing connection (BS.pack "ping")
-    threadDelay (25 * 10 ^ 6) -- every 25 seconds, default timeout for TimeoutIO is 30 seconds
-                                  -- FIXME: shouldbe configurable in case TimeoutIO is using a time less than 25 seconds
+    threadDelay (keepAlive * 10 ^ 6)
 
   ignoreAll :: SomeException -> IO ()
   ignoreAll _ = pure ()
