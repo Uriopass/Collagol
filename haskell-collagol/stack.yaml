@@ -41,7 +41,7 @@ packages:
 #
 extra-deps: 
 - happstack-server-7.5.3@sha256:ae453a5d7d702a5bd3ef606b8c1c30854d7902352dfd0306ac2daf06832402cb,6407
-
+- break-1.0.2@sha256:dd0615d3abb228afd5c3d4e639fe2e212dfc1fd8819629c625f8b159e514e940,840
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

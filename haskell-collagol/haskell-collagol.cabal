@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 94f3d0d2770745bffb9d904b1408514595188810bad3008a8eff2e283dd21cae
+-- hash: 8bbe5268a3f763cffc0f66a4a2c9ff03dcb6c3cf81de8df6ccbf6bb9f3d67112
 
 name:           haskell-collagol
 version:        0.1.0.0
@@ -27,17 +27,22 @@ source-repository head
 executable haskell-collagol-exe
   main-is: Main.hs
   other-modules:
+      Gol
       Websocket
       Paths_haskell_collagol
   hs-source-dirs:
       src
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -W -Wno-unused-imports
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -W -Wno-unused-imports -O2
   build-depends:
-      base >=4.7
+      array
+    , base >=4.7
+    , break
     , bytestring
     , case-insensitive
     , containers
     , happstack-server
     , mtl
+    , random
+    , text
     , websockets
   default-language: Haskell2010

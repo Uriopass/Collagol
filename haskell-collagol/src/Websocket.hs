@@ -24,6 +24,7 @@ import           Happstack.Server.Internal.TimeoutIO      ( TimeoutIO(..) )
 import qualified Network.WebSockets            as WS
 import qualified Network.WebSockets.Connection as WS
 import qualified Network.WebSockets.Stream     as WS
+import           Network.WebSockets.Connection            ( connectionCompressionOptions )
 
 
 runWebSocketsHappstackWith :: (ServerMonad m, MonadIO m) => WS.ConnectionOptions -> WS.ServerApp -> m a
@@ -64,4 +65,8 @@ forkPingThread keepAlive connection = do
   ignoreAll _ = pure ()
 
 runWebSocketsHappstack :: (ServerMonad m, MonadIO m) => WS.ServerApp -> m a
-runWebSocketsHappstack = runWebSocketsHappstackWith WS.defaultConnectionOptions
+runWebSocketsHappstack = runWebSocketsHappstackWith
+  (WS.defaultConnectionOptions
+    { connectionCompressionOptions = WS.PermessageDeflateCompression WS.defaultPermessageDeflate
+    }
+  )
