@@ -29,9 +29,6 @@ func golWs(state *golHub, banner *banner) func(w http.ResponseWriter, r *http.Re
 		IP = IP[:len(IP)-1]
 
 		remoteaddr := strings.Join(IP, ":")
-		if v, connected := banner.isConnected(remoteaddr); connected {
-			state.unSubscribe(v)
-		}
 
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -42,11 +39,13 @@ func golWs(state *golHub, banner *banner) func(w http.ResponseWriter, r *http.Re
 
 		id := counter.Inc()
 		out := state.subscribe(int(id))
-		banner.register(remoteaddr, int(id))
+		if oldID, replaced := banner.register(remoteaddr, int(id)); replaced {
+			state.unSubscribe(oldID)
+		}
 
 		c.SetCloseHandler(func(code int, text string) error {
 			log.Println("Unsubscribing ", remoteaddr)
-			banner.disconnect(remoteaddr)
+			banner.disconnect(remoteaddr, int(id))
 			state.unSubscribe(int(id))
 			return nil
 		})
