@@ -14,31 +14,8 @@ import (
 	"github.com/Uriopass/Collagol/messaging"
 )
 
-var isSecure bool
-
-func redirectToHTTPS(w http.ResponseWriter, req *http.Request) {
-	target := "https://" + req.Host + req.URL.Path
-	if len(req.URL.RawQuery) > 0 {
-		target += "?" + req.URL.RawQuery
-	}
-	log.Printf("redirect to: %s", target)
-	http.Redirect(w, req, target, http.StatusTemporaryRedirect)
-}
-
-func mainRedirect() {
-	http.HandleFunc("/", redirectToHTTPS)
-	log.Fatal(http.ListenAndServe(":80", nil))
-}
-
 func main() {
 	runtime.GOMAXPROCS(1)
-	if len(os.Args) > 1 && os.Args[1] == "test" {
-		runTests()
-		return
-	}
-	if len(os.Args) > 1 && os.Args[1] == "redirect" {
-		mainRedirect()
-	}
 	rand.Seed(time.Now().Unix())
 	golState := newGolState(globalConf)
 	golHub := newGolHub()
@@ -69,12 +46,11 @@ func main() {
 
 	// Start
 	log.Println("Init ok")
-	if len(os.Args) > 1 && os.Args[1] == "nosecure" {
-		log.Fatal(http.ListenAndServe(":80", nil))
-	} else {
-		isSecure = true
-		log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/collagol.douady.paris/fullchain.pem", "/etc/letsencrypt/live/collagol.douady.paris/privkey.pem", nil))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5858"
 	}
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 type wsStruct struct {
@@ -86,10 +62,7 @@ func serveJS(writer http.ResponseWriter, request *http.Request) {
 	t, _ = t.ParseFiles("data/index.js")
 	log.Println("serving index.js")
 	r := wsStruct{
-		WSTYPE: "ws",
-	}
-	if isSecure {
-		r.WSTYPE = "wss"
+		WSTYPE: "wss",
 	}
 	_ = t.Execute(writer, r)
 }
