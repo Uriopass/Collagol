@@ -27,7 +27,7 @@ Done:
  * ~Translation and scroll~
  * ~Optimized networking~
  * ~Better mobile support / responsive design~
- * ~One IP at a time only~
+ * ~5 clients per IP at a time~
  * ~Redo CSS to support more resolutions~
  * ~Shortcuts for rotation and flipping~
  * ~Bigger eraser~

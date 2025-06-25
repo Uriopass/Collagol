@@ -53,16 +53,3 @@ func (b *banner) disconnect(ip string, id int) {
 	}
 	b.mu.Unlock()
 }
-
-// overLimit returns the id of a connection to drop if ip already has
-// maxPerIP connections. The returned bool indicates whether a connection
-// should be removed.
-func (b *banner) overLimit(ip string) (int, bool) {
-	b.mu.RLock()
-	ids := b.IPs[ip]
-	b.mu.RUnlock()
-	if len(ids) >= maxPerIP {
-		return ids[0], true
-	}
-	return 0, false
-}
