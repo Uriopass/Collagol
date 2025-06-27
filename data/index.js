@@ -593,6 +593,12 @@ function applyPattern(pos_x, pos_y) {
 }
 
 canvas.onwheel = function (e) {
+    let mousePos = getMousePos(canvas, e);
+
+    // World coordinates under the mouse before zooming
+    let worldX = (mousePos.x - canvas.width / 2) / zoom - viewportX;
+    let worldY = (mousePos.y - canvas.height / 2) / zoom - viewportY;
+
     if (e.deltaY < 0) {
         zoom++;
     }
@@ -602,6 +608,23 @@ canvas.onwheel = function (e) {
             zoom = 1;
         }
     }
+
+    // Adjust viewport so that the zoom focuses on the mouse location
+    viewportX = (mousePos.x - canvas.width / 2) / zoom - worldX;
+    viewportY = (mousePos.y - canvas.height / 2) / zoom - worldY;
+    if (viewportX > 0) {
+        viewportX -= width;
+    }
+    if (viewportX <= -width) {
+        viewportX += width;
+    }
+    if (viewportY > 0) {
+        viewportY -= height;
+    }
+    if (viewportY <= -height) {
+        viewportY += height;
+    }
+
     lastYMove = -1;
     lastXMove = -1;
     setUrlTo(~~viewportX, ~~viewportY, zoom);
