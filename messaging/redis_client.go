@@ -30,7 +30,7 @@ func initRedisClient() *redisClient {
 func (rc *redisClient) storeMessage(mess string) timeMessage {
 	now := time.Now()
 	ts := now.UnixNano()
-	formatted := now.Format("06-01-02 15-04") + " " + mess
+	formatted := now.Format("06/01/02 15:04") + " " + mess
 
 	c := rc.pool.Get()
 	defer c.Close()
