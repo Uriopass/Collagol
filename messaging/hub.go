@@ -59,13 +59,14 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 		case message := <-h.broadcast:
-			h.history = append(h.history, h.rc.storeMessage(string(message)))
+			tm := h.rc.storeMessage(string(message))
+			h.history = append(h.history, tm)
 
 			for client := range h.clients {
 				// log.Printf("Client room: %s message room: %s \n",
 				// 	client.room, msg.ChatRoomName)
 				select {
-				case client.send <- message:
+				case client.send <- []byte(tm.message):
 				default:
 					close(client.send)
 					delete(h.clients, client)

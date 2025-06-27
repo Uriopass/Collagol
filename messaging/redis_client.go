@@ -28,14 +28,16 @@ func initRedisClient() *redisClient {
 }
 
 func (rc *redisClient) storeMessage(mess string) timeMessage {
-	ts := time.Now().UnixNano()
+	now := time.Now()
+	ts := now.UnixNano()
+	formatted := now.Format("06-01-02 15-04") + " " + mess
 
 	c := rc.pool.Get()
 	defer c.Close()
-	_, _ = c.Do("SET", "message:"+strconv.FormatInt(ts, 10), mess, "EX", int(expireTime.Seconds()))
+	_, _ = c.Do("SET", "message:"+strconv.FormatInt(ts, 10), formatted, "EX", int(expireTime.Seconds()))
 
 	return timeMessage{
-		message: mess,
+		message: formatted,
 		ts:      ts,
 	}
 }
@@ -63,7 +65,9 @@ func (rc *redisClient) getHistory() (timeMessages []timeMessage) {
 	strKeys, _ := redis.Strings(keys, nil)
 
 	for i, key := range strKeys {
-		if !strings.Contains(key, ":") { continue; }
+		if !strings.Contains(key, ":") {
+			continue
+		}
 		value := values[i]
 		ts, _ := strconv.ParseInt(strings.Split(key, ":")[1], 10, 64)
 		timeMessages = append(timeMessages, timeMessage{
