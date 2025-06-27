@@ -179,6 +179,11 @@ h2 {
     background-color: rgba(56, 56, 56, 0.50);
 }
 
+.timestamp {
+    color: gray;
+    margin-right: 5px;
+}
+
 .brush {
     position: relative;
 }

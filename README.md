@@ -12,7 +12,6 @@ Front and back communicate through a websocket, each update sends the entire wor
 Sorted by priority:
  * RLE Sharing
  * Smarter zoom on region
- * Add timestamps for messages
  * Show messages once they are downloaded
  * Rename brushes
  * Change eraser size dynamically
@@ -34,4 +33,5 @@ Done:
  * ~Add send button~
  * ~Change /connected endpoint to WS~
  * ~Optimize draw using Uint32~
+ * ~Add timestamps for messages~
  

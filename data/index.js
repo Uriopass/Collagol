@@ -48,7 +48,9 @@ function initChatroom() {
         }, 1000);
     };
     messageWs.onmessage = function (evt) {
-        messageDiv.innerHTML += `<li class="message">${evt.data}</li>`;
+        let ts = evt.data.substring(0, 14);
+        let content = evt.data.substring(15);
+        messageDiv.innerHTML += `<li class="message"><span class="timestamp">${ts}</span> ${content}</li>`;
         messageDiv.scrollTop = messageDiv.scrollHeight;
     };
     messageWs.onerror = function (evt) {
